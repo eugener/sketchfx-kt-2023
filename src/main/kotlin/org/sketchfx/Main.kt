@@ -107,11 +107,13 @@ class App: Application() {
         val viewModel = CanvasViewModel(model)
         val canvas = CanvasView(viewModel)
 
+        fun random() = Random.nextDouble(100.0)
+
         // TODO for testing only
         model.shapes.setAll(
-            rect(Random.nextDouble(100.0) + 100, Random.nextDouble(100.0) + 100, viewModel),
-            oval(Random.nextDouble(100.0) + 150, Random.nextDouble(100.0) + 200, viewModel),
-            rect(Random.nextDouble(100.0) + 300, Random.nextDouble(100.0) + 300, viewModel),
+            rect(random() + 100, random() + 100, viewModel),
+            oval(random() + 150, random() + 200, viewModel),
+            rect(random() + 300, random() + 300, viewModel),
         )
 
         val tab = Tab(title, canvas)

@@ -20,7 +20,7 @@
 .root {
     /*TODO Adjust font per OS  */
     -fx-font-family: 'Inter Medium';
-    -fx-font-size: 0.14in; /* default font size*/
+    -fx-font-size: 0.15in; /* default font size*/
 }
 
 .canvas-view {
