@@ -1,5 +1,7 @@
+
 package org.sketchfx.canvas
 
+import javafx.scene.transform.Transform
 import org.sketchfx.event.SelectionChanged
 import org.sketchfx.infra.CommandManager
 import org.sketchfx.infra.EventBus
@@ -17,6 +19,8 @@ abstract class CanvasContext() {
     }
 
     abstract var scale: Double
+    abstract var translate: Pair<Double, Double>
+    abstract val transform: Transform
 
     fun fireSelectionChange() {
         eventBus.publish(SelectionChanged(selection.items()))

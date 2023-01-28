@@ -1,11 +1,5 @@
 package org.sketchfx.shape
 
-import org.sketchfx.canvas.CanvasContext
-import org.sketchfx.event.SelectionAdd
-import org.sketchfx.event.ShapeHover
-import org.sketchfx.event.ShapeRelocated
-import org.sketchfx.fx.MouseDragContext
-import org.sketchfx.fx.MouseDragSupport
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.event.EventHandler
@@ -17,7 +11,12 @@ import javafx.scene.paint.Color
 import javafx.scene.paint.Paint
 import javafx.scene.shape.Ellipse
 import javafx.scene.shape.Rectangle
-import java.util.UUID
+import org.sketchfx.canvas.CanvasContext
+import org.sketchfx.event.SelectionAdd
+import org.sketchfx.event.ShapeHover
+import org.sketchfx.event.ShapeRelocated
+import org.sketchfx.fx.MouseDragSupport
+import java.util.*
 
 typealias ShapeBuilder = (Bounds) -> Collection<Node>
 typealias MouseEventHandler = EventHandler<MouseEvent>
@@ -110,8 +109,8 @@ data class Shape(
     val strokeColorProperty: ObjectProperty<Paint> = AttrProperty<Paint>(defaultFill)
 
     private val dragSupport = object: MouseDragSupport(this, context) {
-        override fun onMouseDrag(ctx: MouseDragContext, temp: Boolean ){
-            val delta = if (temp) ctx.currentDelta() else ctx.totalDelta()
+        override fun onDrag(temp: Boolean ){
+            val delta = if (temp) currentDelta() else totalDelta()
             context.eventBus.publish(ShapeRelocated( this@Shape, delta.x, delta.y, temp))
         }
     }

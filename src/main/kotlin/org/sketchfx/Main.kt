@@ -107,13 +107,11 @@ class App: Application() {
         val viewModel = CanvasViewModel(model)
         val canvas = CanvasView(viewModel)
 
-        fun random() = Random.nextDouble(100.0)
-
         // TODO for testing only
         model.shapes.setAll(
-            rect(random() + 100, random() + 100, viewModel),
-            oval(random() + 150, random() + 200, viewModel),
-            rect(random() + 300, random() + 300, viewModel),
+            rect(100.0, 100.0, viewModel),
+            oval(150.0, 200.0, viewModel),
+            rect(300.0, 300.0, viewModel),
         )
 
         val tab = Tab(title, canvas)
@@ -122,8 +120,11 @@ class App: Application() {
         return tab
     }
 
-    private fun rect(x: Double, y: Double, ctx: CanvasContext): Shape = Shape.rectangle(BoundingBox(x, y, 100.0, 100.0), ctx)
-    private fun oval(x: Double, y: Double, ctx: CanvasContext): Shape = Shape.oval(BoundingBox(x, y, 200.0, 100.0), ctx)
+    private fun rect(x: Double, y: Double, ctx: CanvasContext): Shape =
+        Shape.rectangle(BoundingBox(Random.nextDouble(100.0) + x, Random.nextDouble(100.0) + y, 100.0, 100.0), ctx)
+
+    private fun oval(x: Double, y: Double, ctx: CanvasContext): Shape =
+        Shape.oval(BoundingBox(Random.nextDouble(100.0) + x, Random.nextDouble(100.0) + y, 200.0, 100.0), ctx)
 
 
     private fun buildMenu(title: String, accelerator: String, action: () -> Unit): MenuItem {

@@ -21,16 +21,19 @@ class CanvasViewModel(private val model: CanvasModel): CanvasContext() {
         return model.scaleProperty.get().createConcatenation(model.translateProperty.get())
     }
 
+    override val transform: Transform
+        get() = transformProperty.get()
+
     override var scale: Double
         get() = model.scaleProperty.get().x
         set(newScale) {
             if (newScale >= 0) {
                 val bip = this.boundsInParentProperty.get()
-                model.scaleProperty.set(Scale(newScale, newScale, bip.getCenterX(), bip.getCenterY()))
+                model.scaleProperty.set(Scale(newScale, newScale, bip.centerX, bip.centerY))
             }
         }
 
-    var translate: Pair<Double, Double>
+    override var translate: Pair<Double, Double>
         get() {
             val t = model.translateProperty.get()
             return Pair(t.x, t.y)

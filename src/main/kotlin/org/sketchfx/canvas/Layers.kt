@@ -1,19 +1,22 @@
 package org.sketchfx.canvas
 
-import org.sketchfx.event.SelectionBand
-import org.sketchfx.event.SelectionChanged
-import org.sketchfx.event.ShapeHover
-import org.sketchfx.infra.Event
 import javafx.collections.ObservableList
+import javafx.event.EventHandler
 import javafx.geometry.Bounds
 import javafx.scene.Group
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Region
 import javafx.scene.transform.Transform
+import org.sketchfx.event.SelectionBand
+import org.sketchfx.event.SelectionChanged
+import org.sketchfx.event.ShapeHover
+import org.sketchfx.fx.MouseDragSupport
+import org.sketchfx.infra.Event
 import org.sketchfx.shape.SelectionShape
 import org.sketchfx.shape.Shape
 
 abstract class CanvasLayer(): Region() {
+
 
     protected val group = Group()
 
@@ -42,26 +45,32 @@ class ShapeCanvasLayer(): CanvasLayer()
 
 class CatchAllLayer(context: CanvasContext): CanvasLayer() {
 
+    private val dragSupport = object: MouseDragSupport(this, context) {
+        override fun onDrag(temp: Boolean){
+            context.eventBus.publish(SelectionBand(currentBounds(), temp))
+        }
+    }
+
+    private val mousePressHandler = EventHandler<MouseEvent> {context.selection.clear()}
+
     init {
         isPickOnBounds = true
-        //    setOnMouseClicked( _ => context.selection.clear())
+
+
+        sceneProperty().addListener { _, _, newScene ->
+            if (newScene != null) {
+                addEventHandler(MouseEvent.MOUSE_PRESSED, mousePressHandler)
+                dragSupport.enable()
+            } else {
+                removeEventHandler(MouseEvent.MOUSE_RELEASED, mousePressHandler)
+                dragSupport.disable()
+            }
+        }
 
         addEventHandler(MouseEvent.MOUSE_PRESSED) {
             context.selection.clear()
         }
     }
-
-
-
-//    override def onMouseDragStart(): Unit = {
-//         println("onMouseDragStart")
-//         context.selection.clear()
-//    }
-//
-//    override def onMouseDrag(ctx: MouseDragContext, temp: Boolean): Unit = {
-//        println(s"onMouseDrag: $ctx, temp: $temp")
-//        context.eventBus.publish(SelectionBand(ctx.currentBounds, temp))
-//    }
 
 }
 
