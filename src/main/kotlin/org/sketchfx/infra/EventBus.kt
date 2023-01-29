@@ -1,26 +1,23 @@
 package org.sketchfx.infra
 
 interface Event
-private typealias Subscriber = (Event) -> Unit
-private typealias SubscriberSet = Set<Subscriber>
-private typealias EventClass = Class<out Event>
 
 class EventBus {
 
+    val allSubscribers = mutableMapOf<Class<out Event>, Set<(Event) -> Unit>>()
 
-
-    val allSubscribers = mutableMapOf<EventClass, SubscriberSet>()
-
-    inline fun <reified T: Event> subscribersFor(): SubscriberSet {
+    inline fun <reified T: Event> subscribersFor(): Set<(T) -> Unit> {
         return allSubscribers[T::class.java] ?: emptySet()
     }
 
-    inline fun <reified T: Event> subscribe(noinline subscriber: Subscriber) {
-        allSubscribers[T::class.java] = subscribersFor<T>() + subscriber
+    inline fun <reified T:  Event> subscribe(noinline subscriber: (T) -> Unit) {
+        @Suppress("UNCHECKED_CAST")
+        allSubscribers[T::class.java] = (subscribersFor<T>() + subscriber) as Set<(Event) -> Unit>
     }
 
-    inline fun <reified T: Event> unsubscribe(noinline subscriber: Subscriber) {
-        allSubscribers[T::class.java] = subscribersFor<T>() - subscriber
+    inline fun <reified T: Event> unsubscribe(noinline subscriber: (T) -> Unit) {
+        @Suppress("UNCHECKED_CAST")
+        allSubscribers[T::class.java] = (subscribersFor<T>() + subscriber) as Set<(Event) -> Unit>
     }
 
     inline fun <reified T: Event> publish(event: T) {

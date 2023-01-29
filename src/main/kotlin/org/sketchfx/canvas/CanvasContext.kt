@@ -8,7 +8,7 @@ import org.sketchfx.infra.EventBus
 import org.sketchfx.infra.SelectionModel
 import org.sketchfx.shape.Shape
 
-abstract class CanvasContext() {
+abstract class CanvasContext {
 
     val eventBus: EventBus = EventBus()
     val selection: SelectionModel<Shape> = SelectionModel()

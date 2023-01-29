@@ -13,11 +13,10 @@ import org.sketchfx.event.SelectionBounds
 import org.sketchfx.event.SelectionChanged
 import org.sketchfx.event.ShapeHover
 import org.sketchfx.fx.MouseDragSupport
-import org.sketchfx.infra.Event
-import org.sketchfx.shape.SelectionBox as SelectionBoxShape
 import org.sketchfx.shape.Shape
+import org.sketchfx.shape.SelectionBox as SelectionBoxShape
 
-abstract class CanvasLayer(): Region() {
+abstract class CanvasLayer : Region() {
 
     protected val group = Group()
 
@@ -45,7 +44,7 @@ abstract class CanvasLayer(): Region() {
 
 }
 
-class ShapeCanvasLayer(): CanvasLayer()
+class ShapeCanvasLayer : CanvasLayer()
 
 class CatchAllLayer(context: CanvasContext): CanvasLayer() {
 
@@ -89,36 +88,32 @@ class OverlayCanvasLayer(private val context: CanvasContext): CanvasLayer() {
         group.children.addAll(hoverGroup, selectionGroup, bandGroup)
         sceneProperty().addListener { _, _, newScene ->
             if (newScene != null) {
-                context.eventBus.subscribe<ShapeHover>(::shapeHoverHandler)
-                context.eventBus.subscribe<SelectionChanged>(::selectionChangeHandler)
-                context.eventBus.subscribe<SelectionBand>(::selectionBandHandler)
+                context.eventBus.subscribe(::shapeHoverHandler)
+                context.eventBus.subscribe(::selectionChangeHandler)
+                context.eventBus.subscribe(::selectionBandHandler)
             } else {
-                context.eventBus.unsubscribe<ShapeHover>(::shapeHoverHandler)
-                context.eventBus.unsubscribe<SelectionChanged>(::selectionChangeHandler)
-                context.eventBus.unsubscribe<SelectionBand>(::selectionBandHandler)
+                context.eventBus.unsubscribe(::shapeHoverHandler)
+                context.eventBus.unsubscribe(::selectionChangeHandler)
+                context.eventBus.unsubscribe(::selectionBandHandler)
             }
         }
     }
 
-    private fun shapeHoverHandler(e: Event) {
-        if (e is ShapeHover) {
-            if (!e.on) {
-                hideHover()
+    private fun shapeHoverHandler(e: ShapeHover) {
+        if (!e.on) {
+            hideHover()
 
-            } else if (!context.selection.contains(e.base)) {
-                showHover(e.base)
-            }
+        } else if (!context.selection.contains(e.base)) {
+            showHover(e.base)
         }
     }
 
-    private fun selectionBandHandler( e: Event) {
-       if (e is SelectionBand)
-           showBand(e.bounds, e.on)
+    private fun selectionBandHandler( e: SelectionBand) {
+       showBand(e.bounds, e.on)
     }
 
-    private fun selectionChangeHandler(e: Event) {
-        if (e is SelectionChanged )
-            showSelection(e.selection)
+    private fun selectionChangeHandler(e: SelectionChanged) {
+        showSelection(e.selection)
     }
 
     private fun hideHover() {
