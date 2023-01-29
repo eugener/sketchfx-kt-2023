@@ -50,8 +50,8 @@ class App: Application() {
 
         tabs.getSelectionModel().selectedItemProperty().addListener { _, oldTab, newTab ->
 
-            oldTab?.let {
-                when(val canvas = it.content) {
+            oldTab?.run {
+                when(val canvas = content) {
                     is CanvasView -> {
                         undoMenu.disableProperty().unbind()
                         redoMenu.disableProperty().unbind()
@@ -60,8 +60,8 @@ class App: Application() {
                 }
             }
 
-            newTab?.let {
-                when(val canvas = it.content) {
+            newTab?.run {
+                when(val canvas = content) {
                     is CanvasView -> {
                         undoMenu.disableProperty().bind(canvas.context.commandManager.undoAvailableProperty.not())
                         redoMenu.disableProperty().bind(canvas.context.commandManager.redoAvailableProperty.not())
@@ -96,7 +96,7 @@ class App: Application() {
 
     private fun updateStatus() {
         val transform = getCurrentCanvas()?.canvasTransformProperty?.get()
-        transform?.let {
+        transform?.run {
             status.text = "scale: %.2f; translate: (%.2f : %.2f)".format(transform.mxx, transform.tx, transform.ty)
         }
 

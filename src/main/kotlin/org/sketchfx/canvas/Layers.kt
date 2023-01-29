@@ -96,29 +96,25 @@ class OverlayCanvasLayer(private val context: CanvasContext): CanvasLayer() {
         }
     }
 
-    private fun shapeHoverHandler( e: Event) {
-        when (e) {
-            is ShapeHover -> {
-                if (!e.on) {
-                    hideHover()
+    private fun shapeHoverHandler(e: Event) {
+        if (e is ShapeHover) {
+            if (!e.on) {
+                hideHover()
 
-                } else if (!context.selection.contains(e.base)) {
-                    showHover(e.base)
-                }
+            } else if (!context.selection.contains(e.base)) {
+                showHover(e.base)
             }
         }
     }
 
     private fun selectionBandHandler( e: Event) {
-        when (e) {
-            is SelectionBand -> showBand(e.bounds, e.on)
-        }
+       if (e is SelectionBand)
+           showBand(e.bounds, e.on)
     }
 
     private fun selectionChangeHandler(e: Event) {
-        when (e) {
-            is SelectionChanged -> showSelection(e.selection)
-        }
+        if (e is SelectionChanged )
+            showSelection(e.selection)
     }
 
     private fun hideHover() {

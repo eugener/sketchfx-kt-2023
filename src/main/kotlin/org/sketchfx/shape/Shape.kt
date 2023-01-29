@@ -73,34 +73,34 @@ data class Shape(
         }
 
         fun selectionBand(bounds: Bounds, context: CanvasContext): Node {
-            val rect = Rectangle(bounds.minX, bounds.minY, bounds.width, bounds.height)
-            rect.fill = highlightFill
-            rect.stroke = highlightStroke
-            rect.strokeWidth = 1 / context.scale
-            rect.isMouseTransparent = true
-            return rect
+            return Rectangle(bounds.minX, bounds.minY, bounds.width, bounds.height).apply {
+                fill = highlightFill
+                stroke = highlightStroke
+                strokeWidth = 1 / context.scale
+                isMouseTransparent = true
+            }
         }
 
         fun selectionBounds( bounds: Bounds, context: CanvasContext): Node {
-            val rect = Rectangle( bounds.minX, bounds.minY, bounds.width, bounds.height )
-            rect.fill = Color.TRANSPARENT
-            rect.stroke = selectionStroke
-            rect.strokeWidth = 1/ context.scale
-            rect.isMouseTransparent = true
-            return rect
+            return Rectangle( bounds.minX, bounds.minY, bounds.width, bounds.height ).apply {
+                fill = Color.TRANSPARENT
+                stroke = selectionStroke
+                strokeWidth = 1 / context.scale
+                isMouseTransparent = true
+            }
         }
 
         fun selectionHandle(x: Double, y: Double, context: CanvasContext): Node {
 
             val size = handleSize / context.scale
             val offset = size / 2
-            val strokeWidth = 1/ context.scale
+            val lineWidth = 1/ context.scale
 
-            val rect = Rectangle(x-offset, y-offset, size, size)
-            rect.fill = Color.WHITE
-            rect.stroke = selectionStroke
-            rect.strokeWidth = strokeWidth
-            return rect
+            return Rectangle(x-offset, y-offset, size, size).apply{
+                fill = Color.WHITE
+                stroke = selectionStroke
+                strokeWidth = lineWidth
+            }
         }
 
     }
@@ -141,9 +141,9 @@ data class Shape(
     }
 
     fun makeCopy( update: (Shape) -> Unit = { _ -> } ): Shape {
-        val copy = Shape( bounds = boundsInParent, buildShape = buildShape, context = context)
-        update(copy)
-        return copy
+        return Shape( bounds = boundsInParent, buildShape = buildShape, context = context).apply {
+            update(this)
+        }
     }
 
     private fun updateAttrs(node: Node): Node {
