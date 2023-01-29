@@ -8,11 +8,12 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Region
 import javafx.scene.transform.Transform
 import org.sketchfx.event.SelectionBand
+import org.sketchfx.event.SelectionBounds
 import org.sketchfx.event.SelectionChanged
 import org.sketchfx.event.ShapeHover
 import org.sketchfx.fx.MouseDragSupport
 import org.sketchfx.infra.Event
-import org.sketchfx.shape.SelectionShape
+import org.sketchfx.shape.SelectionBox as SelectionBoxShape
 import org.sketchfx.shape.Shape
 
 abstract class CanvasLayer(): Region() {
@@ -130,15 +131,17 @@ class OverlayCanvasLayer(private val context: CanvasContext): CanvasLayer() {
             selectionGroup.children.clear()
         } else {
             hideHover()
-            selectionGroup.children.setAll( SelectionShape(selection, context))
+            selectionGroup.children.setAll( SelectionBoxShape(selection, context))
         }
     }
 
     private fun showBand(bounds: Bounds, on: Boolean ) {
-        if (on)
+        if (on) {
             bandGroup.children.setAll(Shape.selectionBand(bounds, context))
-        else
+            context.eventBus.publish(SelectionBounds(bounds))
+        } else {
             bandGroup.children.clear()
+        }
     }
 
 }

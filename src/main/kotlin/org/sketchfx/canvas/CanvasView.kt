@@ -10,19 +10,18 @@ import javafx.scene.input.ZoomEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.shape.Rectangle
 import javafx.scene.transform.Transform
-import org.sketchfx.event.SelectionAdd
+import org.sketchfx.event.SelectionUpdate
 import org.sketchfx.event.ShapeRelocated
+import org.sketchfx.event.SelectionBounds
 
 
 class CanvasView(val context: CanvasViewModel) : StackPane() {
-//with Clipped
 
     private val clip = Rectangle()
     private val shapeLayer = ShapeCanvasLayer()
     private val overlayLayer = OverlayCanvasLayer(context)
     private val catchAllLayer = CatchAllLayer(context)
 
-//    selection.onChange( selection => eventBus.publish(SelectionChanged(selection)))
 
     // canvas transform - calculated from scale and translation
     val canvasTransformProperty: ObjectProperty<Transform> =
@@ -39,7 +38,7 @@ class CanvasView(val context: CanvasViewModel) : StackPane() {
     init {
         styleClass.setAll("canvas-view")
         setClip(clip)
-        layoutBoundsProperty().addListener{ _, _, bounds ->
+        layoutBoundsProperty().addListener { _, _, bounds ->
             clip.width = bounds.width
             clip.height = bounds.height
         }
@@ -57,8 +56,9 @@ class CanvasView(val context: CanvasViewModel) : StackPane() {
                 addEventFilter(ZoomEvent.ANY, ::zoomHandler)
                 addEventFilter(ScrollEvent.ANY, ::scrollHandler)
 
-                context.eventBus.subscribe<SelectionAdd>(::selectionAddHandler)
+                context.eventBus.subscribe<SelectionUpdate>(::selectionAddHandler)
                 context.eventBus.subscribe<ShapeRelocated>(::shapeRelocatedHandler)
+                context.eventBus.subscribe<SelectionBounds>(::selectionBoundsHandler)
 
                 context.boundsInParentProperty.bind(this.boundsInParentProperty())
                 this.canvasTransformProperty.bind(context.transformProperty)
@@ -67,8 +67,9 @@ class CanvasView(val context: CanvasViewModel) : StackPane() {
                 removeEventFilter(ZoomEvent.ANY, ::zoomHandler)
                 removeEventFilter(ScrollEvent.ANY, ::scrollHandler)
 
-                context.eventBus.unsubscribe<SelectionAdd>(::selectionAddHandler)
+                context.eventBus.unsubscribe<SelectionUpdate>(::selectionAddHandler)
                 context.eventBus.unsubscribe<ShapeRelocated>(::shapeRelocatedHandler)
+                context.eventBus.unsubscribe<SelectionBounds>(::selectionBoundsHandler)
 
                 context.boundsInParentProperty.unbind()
                 this.canvasTransformProperty.unbind()
@@ -78,29 +79,32 @@ class CanvasView(val context: CanvasViewModel) : StackPane() {
 
     }
 
+    private fun selectionBoundsHandler(e: Event) {
+        if (e is SelectionBounds) {
+            val selectedShapes = shapeLayer.shapes().filter{it.boundsInParent.intersects(e.bounds)}
+            context.selection.set(*selectedShapes.toTypedArray())
+        }
+    }
+
     private fun selectionAddHandler(e: Event) {
-        when (e) {
-            is SelectionAdd -> {
-                if (!e.toggle) {
-                    if (!context.selection.contains(e.shape)) {
-                        context.selection.set(e.shape)
-                    }
-                } else {
-                    context.selection.toggle(e.shape)
+        if (e is SelectionUpdate) {
+            if (!e.toggle) {
+                if (!context.selection.contains(e.shape)) {
+                    context.selection.set(e.shape)
                 }
+            } else {
+                context.selection.toggle(e.shape)
             }
         }
     }
 
     private fun shapeRelocatedHandler(e: Event) {
-        when (e) {
-            is ShapeRelocated -> {
-                val cmd = CmdRelocateShapes(context.selection.items(), e.dx, e.dy, context)
-                if (e.temp) {
-                    cmd.run()
-                } else {
-                    context.commandManager.add(cmd)
-                }
+        if (e is ShapeRelocated) {
+            val cmd = CmdRelocateShapes(context.selection.items(), e.dx, e.dy, context)
+            if (e.temp) {
+                cmd.run()
+            } else {
+                context.commandManager.add(cmd)
             }
         }
     }

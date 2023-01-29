@@ -6,7 +6,7 @@ import javafx.scene.Group
 import javafx.scene.Node
 import org.sketchfx.fx.union
 
-class SelectionShape(selection: Collection<Shape>, context: CanvasContext): Group() {
+class SelectionBox(selection: Collection<Shape>, context: CanvasContext): Group() {
 
     init {
 

@@ -12,7 +12,7 @@ import javafx.scene.paint.Paint
 import javafx.scene.shape.Ellipse
 import javafx.scene.shape.Rectangle
 import org.sketchfx.canvas.CanvasContext
-import org.sketchfx.event.SelectionAdd
+import org.sketchfx.event.SelectionUpdate
 import org.sketchfx.event.ShapeHover
 import org.sketchfx.event.ShapeRelocated
 import org.sketchfx.fx.MouseDragSupport
@@ -121,7 +121,7 @@ data class Shape(
 
         val mouseEnterHandler = MouseEventHandler{context.eventBus.publish( ShapeHover( this, true ))}
         val mouseExitHandler  = MouseEventHandler{context.eventBus.publish( ShapeHover( this, false ))}
-        val mousePressHandler = MouseEventHandler{context.eventBus.publish( SelectionAdd( this, it.isShiftDown ))}
+        val mousePressHandler = MouseEventHandler{context.eventBus.publish( SelectionUpdate( this, it.isShiftDown ))}
 
         sceneProperty().addListener { _, _, newScene ->
             if (newScene != null) {
