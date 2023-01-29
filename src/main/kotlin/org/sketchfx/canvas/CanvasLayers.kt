@@ -4,6 +4,7 @@ import javafx.collections.ObservableList
 import javafx.event.EventHandler
 import javafx.geometry.Bounds
 import javafx.scene.Group
+import javafx.scene.Node
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Region
 import javafx.scene.transform.Transform
@@ -18,10 +19,7 @@ import org.sketchfx.shape.Shape
 
 abstract class CanvasLayer(): Region() {
 
-
     protected val group = Group()
-
-//    override protected fun getChildren: ObservableList[Node] = super.getChildren
 
     init {
         super.getChildren().add(group)
@@ -38,6 +36,11 @@ abstract class CanvasLayer(): Region() {
 
     fun setTransform(transform: Transform){
         group.transforms.setAll(transform)
+    }
+
+    @Deprecated("Use shapes() instead", ReplaceWith("shapes"))
+    final override fun getChildren(): ObservableList<Node> {
+        return group.children
     }
 
 }
