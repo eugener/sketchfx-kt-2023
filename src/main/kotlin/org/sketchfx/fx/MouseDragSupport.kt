@@ -20,23 +20,25 @@ abstract class MouseDragSupport( private val base: Node, private val context: Ca
     private var nextPos: Point2D? = null
 
     private val mousePressHandler = MouseEventHandler{ e ->
-        prevPos = getPos(e)
-        startPos = prevPos
+        startPos = getPos(e)
+        prevPos = startPos
+        nextPos = startPos
         onDragStart()
     }
 
     private val mouseDragHandler = MouseEventHandler{ e ->
-        if ( prevPos != null ) {
+        startPos?.let {
             nextPos = getPos(e)
             onDrag(true)
+            prevPos = nextPos
         }
-        prevPos = nextPos
     }
 
     private val mouseReleaseHandler = MouseEventHandler{e ->
-        if ( startPos != null ) {
+        startPos?.let {
             nextPos = getPos(e)
             onDrag(false)
+            prevPos = nextPos
         }
         startPos = null
         prevPos = null
@@ -44,7 +46,8 @@ abstract class MouseDragSupport( private val base: Node, private val context: Ca
     }
 
     private fun getPos( e: MouseEvent ): Point2D {
-        return context.transform.inverseTransform(e.sceneX, e.sceneY)
+        val localPos = base.localToParent(base.sceneToLocal(e.sceneX, e.sceneY))
+        return context.transform.inverseTransform(localPos)
     }
 
     fun enable() {
@@ -59,15 +62,19 @@ abstract class MouseDragSupport( private val base: Node, private val context: Ca
         base.removeEventHandler(MouseEvent.MOUSE_RELEASED, mouseReleaseHandler)
     }
 
-    /** Override this method to handle mouse drag events
+    /**
+     * Override this method to handle mouse drag events
      * @param temp    is true if the drag is not yet finished
      */
     abstract fun onDrag( temp: Boolean )
 
+    /**
+     * Override this method to handle mouse drag start event
+     */
     fun onDragStart() {}
 
-    protected fun currentDelta(): Point2D = nextPos!!.subtract(prevPos)
-    protected fun totalDelta(): Point2D = nextPos!!.subtract(prevPos)
+    protected fun currentDelta(): Point2D = nextPos!!.subtract(prevPos).multiply(context.scale)
+    protected fun totalDelta(): Point2D = nextPos!!.subtract(startPos).multiply(context.scale)
 
     protected fun currentBounds(): Bounds {
         val minX = min(startPos!!.x, nextPos!!.x)
