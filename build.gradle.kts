@@ -1,3 +1,10 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven(url = "https://nexus.nee.com/repository/maven-public/")
+    }
+}
+
 plugins {
     kotlin("jvm") version "1.8.0"
     application
