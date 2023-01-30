@@ -28,14 +28,14 @@ tasks.test {
 }
 
 kotlin {
-    jvmToolchain(18)
+    jvmToolchain(19)
 }
 
 application {
     mainClass.set("org.sketchfx.MainKt")
 }
 
-javafx() {
+javafx {
     version = "19"
     modules("javafx.controls", "javafx.fxml")
 }
