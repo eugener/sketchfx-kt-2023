@@ -1,19 +1,15 @@
 package org.sketchfx
 
-import org.sketchfx.canvas.CanvasContext
-import org.sketchfx.canvas.CanvasModel
-import org.sketchfx.canvas.CanvasView
-import org.sketchfx.canvas.CanvasViewModel
 import javafx.application.Application
 import javafx.beans.InvalidationListener
 import javafx.event.EventHandler
-import javafx.geometry.BoundingBox
 import javafx.scene.control.*
 import javafx.scene.input.KeyCombination
 import javafx.scene.layout.BorderPane
 import javafx.stage.Stage
-import org.sketchfx.shape.Shape
-import kotlin.random.Random
+import org.sketchfx.canvas.CanvasModel
+import org.sketchfx.editor.EditorView
+import org.sketchfx.editor.EditorViewModel
 
 fun main(args: Array<String>) {
     Application.launch(App::class.java,  *args)
@@ -30,13 +26,14 @@ class App: Application() {
 
         status.prefWidth = Double.MAX_VALUE
         status.styleClass.setAll("status-bar")
+
         val statusListener = InvalidationListener{updateStatus()}
 
         val undoMenu = buildMenu("Undo", "meta+Z") {
-            getCurrentCanvas()?.context?.commandManager?.undo()
+            getCurrentEditor()?.undo()
         }
         val redoMenu = buildMenu("Redo", "meta+shift+Z") {
-            getCurrentCanvas()?.context?.commandManager?.redo()
+            getCurrentEditor()?.redo()
         }
 
 
@@ -48,35 +45,32 @@ class App: Application() {
         val menuBar = MenuBar(editMenu)
         menuBar.isUseSystemMenuBar = true
 
-        tabs.getSelectionModel().selectedItemProperty().addListener { _, oldTab, newTab ->
+        tabs.selectionModel.selectedItemProperty().addListener { _, oldTab, newTab ->
 
-            oldTab?.run {
-                when(val canvas = content) {
-                    is CanvasView -> {
-                        undoMenu.disableProperty().unbind()
-                        redoMenu.disableProperty().unbind()
-                        canvas.canvasTransformProperty.removeListener(statusListener)
-                    }
-                }
+            getEditor(oldTab)?.apply {
+                undoMenu.disableProperty().unbind()
+                redoMenu.disableProperty().unbind()
+                canvasTransformProperty.removeListener(statusListener)
             }
 
-            newTab?.run {
-                when(val canvas = content) {
-                    is CanvasView -> {
-                        undoMenu.disableProperty().bind(canvas.context.commandManager.undoAvailableProperty.not())
-                        redoMenu.disableProperty().bind(canvas.context.commandManager.redoAvailableProperty.not())
-                        canvas.canvasTransformProperty.addListener(statusListener)
-                        statusListener.invalidated(null)
-                    }
-                }
+            getEditor(newTab)?.apply {
+                undoMenu.disableProperty().bind(undoAvailableProperty.not())
+                redoMenu.disableProperty().bind(redoAvailableProperty.not())
+                canvasTransformProperty.addListener(statusListener)
+                updateStatus()
             }
         }
+
         tabs.tabs.setAll(
             buildTab("Canvas 1", CanvasModel()),
             buildTab("Canvas 2", CanvasModel()),
             buildTab("Canvas 3", CanvasModel()),
         )
+        tabs.selectionModel.select(0)
+
+
         val browser = BorderPane(tabs, menuBar, null, status, null)
+
         val scene = javafx.scene.Scene(browser, 1000.0, 600.0)
         scene.stylesheets.add(App::class.java.getResource("styles.css")?.toExternalForm())
 
@@ -84,18 +78,18 @@ class App: Application() {
         primaryStage?.title = "SketchFX"
         primaryStage?.show()
 
-
     }
 
-    private fun getCurrentCanvas(): CanvasView? {
-        return when(val c = tabs.selectionModel.selectedItem.content) {
-            is CanvasView -> c
-            else -> null
-        }
+    private fun getEditor( tab: Tab?): EditorView? {
+        return tab?.content as EditorView?
+    }
+
+    private fun getCurrentEditor(): EditorView? {
+        return getEditor(tabs.selectionModel.selectedItem)
     }
 
     private fun updateStatus() {
-        val transform = getCurrentCanvas()?.canvasTransformProperty?.get()
+        val transform = getCurrentEditor()?.canvasTransformProperty?.get()
         transform?.run {
             status.text = "scale: %.2f; translate: (%.2f : %.2f)".format(transform.mxx, transform.tx, transform.ty)
         }
@@ -103,29 +97,11 @@ class App: Application() {
     }
 
     private fun buildTab(title: String, model: CanvasModel): Tab {
-
-        val viewModel = CanvasViewModel(model)
-        val canvas = CanvasView(viewModel)
-
-        // TODO for testing only
-        model.shapes.setAll(
-            rect(100.0, 100.0, viewModel),
-            oval(150.0, 200.0, viewModel),
-            rect(300.0, 300.0, viewModel),
-        )
-
-        val tab = Tab(title, canvas)
-        tab.userData = model
-        tab.isClosable = false
-        return tab
+        return Tab(title, EditorView( EditorViewModel(model))).apply {
+            userData = model
+            isClosable = false
+        }
     }
-
-    private fun rect(x: Double, y: Double, ctx: CanvasContext): Shape =
-        Shape.rectangle(BoundingBox(Random.nextDouble(100.0) + x, Random.nextDouble(100.0) + y, 100.0, 100.0), ctx)
-
-    private fun oval(x: Double, y: Double, ctx: CanvasContext): Shape =
-        Shape.oval(BoundingBox(Random.nextDouble(100.0) + x, Random.nextDouble(100.0) + y, 200.0, 100.0), ctx)
-
 
     private fun buildMenu(title: String, accelerator: String, action: () -> Unit): MenuItem {
         val item = MenuItem(title)
@@ -133,6 +109,4 @@ class App: Application() {
         item.accelerator = KeyCombination.keyCombination(accelerator)
         return item
     }
-
-
 }

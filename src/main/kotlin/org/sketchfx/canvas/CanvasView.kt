@@ -19,7 +19,7 @@ class CanvasView(val context: CanvasViewModel) : StackPane() {
 
 
     // canvas transform - calculated from scale and translation
-    val canvasTransformProperty: ObjectProperty<Transform> =
+    private val canvasTransformProperty: ObjectProperty<Transform> =
         object : SimpleObjectProperty<Transform>(Transform.scale(1.0, 1.0)) {
             override fun invalidated() {
                 val transform = get()

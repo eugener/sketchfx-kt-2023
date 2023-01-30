@@ -24,6 +24,7 @@ typealias MouseEventHandler = EventHandler<MouseEvent>
 
 data class Shape(
     val sid: String = UUID.randomUUID().toString(),
+    val name: String,
     private val bounds: Bounds,
     private val buildShape: ShapeBuilder,
     private val context: CanvasContext
@@ -34,14 +35,14 @@ data class Shape(
         val defaultFill: Color = Color.DARKGREY
         val defaultStroke: Color = Color.LIGHTGREY
 
-        private val highlight: String = "#0D99FF"
+        private const val highlight: String = "#0D99FF"
 
-        val highlightFill: Color = Color.web(highlight, 0.05)
-        val highlightStroke: Color = Color.web(highlight)
+        private val highlightFill: Color = Color.web(highlight, 0.05)
+        private val highlightStroke: Color = Color.web(highlight)
 
-        val selectionStroke: Color = Color.web(highlight)
+        private val selectionStroke: Color = Color.web(highlight)
 
-        val handleSize: Int = 8
+        private const val handleSize: Int = 8
 
         private val rectangleBuilder: ShapeBuilder = { b ->
             listOf( Rectangle( b.minX, b.minY, b.width, b.height ))
@@ -51,8 +52,8 @@ data class Shape(
         }
 
         // common shapes
-        fun rectangle(bounds:Bounds,context: CanvasContext) = Shape(bounds = bounds, buildShape = rectangleBuilder, context = context)
-        fun oval(bounds:Bounds,context: CanvasContext)      = Shape(bounds = bounds, buildShape = ovalBuilder, context = context)
+        fun rectangle(bounds:Bounds,context: CanvasContext) = Shape( name = "Rectangle", bounds = bounds, buildShape = rectangleBuilder, context = context)
+        fun oval(bounds:Bounds,context: CanvasContext)      = Shape( name = "Oval", bounds = bounds, buildShape = ovalBuilder, context = context)
 
         // support shapes
 
@@ -140,8 +141,12 @@ data class Shape(
 
     }
 
+    override fun toString(): String {
+        return name
+    }
+
     fun makeCopy( update: (Shape) -> Unit = { _ -> } ): Shape {
-        return Shape( bounds = boundsInParent, buildShape = buildShape, context = context).apply {
+        return Shape( name = "copy", bounds = boundsInParent, buildShape = buildShape, context = context).apply {
             update(this)
         }
     }

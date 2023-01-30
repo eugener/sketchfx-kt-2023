@@ -28,11 +28,6 @@ abstract class CanvasLayer : Region() {
         isPickOnBounds = false
     }
 
-    fun shapes(): ObservableList<Shape> {
-        @Suppress("UNCHECKED_CAST")
-        return group.children as ObservableList<Shape>
-    }
-
     fun setTransform(transform: Transform){
         group.transforms.setAll(transform)
     }
@@ -44,7 +39,12 @@ abstract class CanvasLayer : Region() {
 
 }
 
-class ShapeCanvasLayer : CanvasLayer()
+class ShapeCanvasLayer : CanvasLayer() {
+    fun shapes(): ObservableList<Shape> {
+        @Suppress("UNCHECKED_CAST")
+        return group.children as ObservableList<Shape>
+    }
+}
 
 class CatchAllLayer(context: CanvasContext): CanvasLayer() {
 
@@ -82,7 +82,6 @@ class OverlayCanvasLayer(private val context: CanvasContext): CanvasLayer() {
     private val hoverGroup = Group()
     private val selectionGroup = Group()
     private val bandGroup = Group()
-
 
     init {
         group.children.addAll(hoverGroup, selectionGroup, bandGroup)
