@@ -4,7 +4,6 @@ import javafx.collections.ObservableList
 import javafx.event.EventHandler
 import javafx.geometry.Bounds
 import javafx.scene.Group
-import javafx.scene.Node
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Region
 import javafx.scene.transform.Transform
@@ -32,11 +31,6 @@ abstract class CanvasLayer : Region() {
         group.transforms.setAll(transform)
     }
 
-    @Deprecated("Use shapes() instead", ReplaceWith("shapes"))
-    final override fun getChildren(): ObservableList<Node> {
-        return group.children
-    }
-
 }
 
 class ShapeCanvasLayer : CanvasLayer() {
@@ -44,6 +38,7 @@ class ShapeCanvasLayer : CanvasLayer() {
         @Suppress("UNCHECKED_CAST")
         return group.children as ObservableList<Shape>
     }
+
 }
 
 class CatchAllLayer(context: CanvasContext): CanvasLayer() {
