@@ -5,7 +5,7 @@ import org.sketchfx.event.SelectionChanged
 import org.sketchfx.infra.Command
 import org.sketchfx.shape.Shape
 
-data class CmdRelocateShapes(val shapes: Set<Shape>, val deltaX: Double, val deltaY: Double, val context: CanvasContext):
+data class CmdRelocateShapes(val shapes: Collection<Shape>, val deltaX: Double, val deltaY: Double, val context: CanvasContext):
     Command {
 
     override fun run() = relocateShapes(deltaX, deltaY)

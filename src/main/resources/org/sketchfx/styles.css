@@ -22,6 +22,8 @@
     -fx-font-family: 'Inter Regular';
     /*-fx-font-size: 0.15in; !* default font size*!*/
     -fx-font-size: 14;
+    -fx-accent: #0D99FF;
+    -fx-control-inner-background-alt: -fx-control-inner-background ;
 }
 
 .canvas-view {
@@ -38,28 +40,36 @@
 }
 
 .split-pane-divider {
-    -fx-padding: 0 1.5 0 0;
+    -fx-padding: 0 2.5 0 0;
 }
 
-/*.split-pane:vertical > * > .split-pane-divider {*/
-/*    -fx-border-color:  darkgrey;*/
-/*    -fx-background-color: darkgrey;*/
-/*    -fx-background-insets: 0;*/
-/*    -fx-border-insets: 1;*/
-/*}*/
+.list-view {
+    -fx-padding: 7 7 7 7;
+    -fx-border-insets: 0 0 0 0;
+    /*-fx-background-color: grey;*/
+    -fx-border-width: 0 0 0 0;
+    /*-fx-border-color: darkgrey;*/
+    -fx-background-insets: 0 0 0 0;
+    /*-fx-border-insets: 0 0 0 0;*/
+}
 
-/*.list-view {*/
-/*    -fx-border-width: 0 2 0 0;*/
-/*    !*-fx-border-color: darkgrey;*!*/
-/*    -fx-background-insets: 0 2 0 0;*/
-/*    !*-fx-border-insets: 0 0 0 0;*!*/
-/*}*/
+.list-view .scroll-bar:horizontal {
+    -fx-scale-x: 0;
+}
 
-/*.canvas-browser > .split-pane > .split-pane-divider {*/
-/*    -fx-padding: 0 1 0 0;*/
-/*    -fx-background-color: transparent;*/
-/*    -fx-border-width: 0 0 0 0;*/
-/*    -fx-border-color: darkgrey;*/
-/*    !*-fx-min-width: 1in;*!*/
-/*    !*-fx-max-width: 5in;*!*/
-/*}*/
+.shape-list-cell {
+    -fx-padding: 7 15 7 15;
+    -fx-border-width: 0 0 0 0;
+    -fx-border-color: darkgrey;
+    -fx-background-insets: 0 0 0 0;
+    -fx-border-insets: 0 0 0 0;
+    -fx-background-radius: 5;
+    -fx-font-size: 13;
+    -fx-background-color: transparent;
+}
+
+.shape-list-cell:selected {
+    -fx-text-fill:white;
+    -fx-background-color: -fx-accent;
+}
+

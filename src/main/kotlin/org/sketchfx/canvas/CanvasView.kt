@@ -53,14 +53,14 @@ class CanvasView(val context: CanvasViewModel) : StackPane() {
 
                 context.boundsInParentProperty.bind(this.boundsInParentProperty())
                 this.canvasTransformProperty.bind(context.transformProperty)
-                Bindings.bindContentBidirectional(shapeLayer.shapes(), context.shapes())
+                Bindings.bindContent(shapeLayer.shapes(), context.shapes())
             } else {
                 removeEventFilter(ZoomEvent.ANY, ::zoomHandler)
                 removeEventFilter(ScrollEvent.ANY, ::scrollHandler)
 
                 context.boundsInParentProperty.unbind()
                 this.canvasTransformProperty.unbind()
-                Bindings.unbindContentBidirectional(shapeLayer.shapes(), context.shapes())
+                Bindings.unbindContent(shapeLayer.shapes(), context.shapes())
             }
         }
 

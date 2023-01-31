@@ -118,7 +118,7 @@ class OverlayCanvasLayer(private val context: CanvasContext): CanvasLayer() {
         hoverGroup.children.setAll(Shape.hover(shape))
     }
 
-    private fun showSelection(selection: Set<Shape>) {
+    private fun showSelection(selection: Collection<Shape>) {
         if (selection.isEmpty()) {
             selectionGroup.children.clear()
         } else {
