@@ -14,6 +14,8 @@ plugins {
 group = "org.sketchfx"
 version = "1.0-SNAPSHOT"
 
+val jvmVersion by extra { 19 }
+
 repositories {
     mavenCentral()
     maven(url = "https://nexus.nee.com/repository/maven-public/")
@@ -28,7 +30,7 @@ tasks.test {
 }
 
 kotlin {
-    jvmToolchain(19)
+    jvmToolchain(jvmVersion)
 }
 
 application {
@@ -36,6 +38,6 @@ application {
 }
 
 javafx {
-    version = "19"
+    version = "$jvmVersion"
     modules("javafx.controls", "javafx.fxml")
 }
