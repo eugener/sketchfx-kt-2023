@@ -1,8 +1,10 @@
 package org.sketchfx.editor
 
+import javafx.beans.binding.Bindings
 import javafx.geometry.BoundingBox
 import javafx.scene.control.ListView
 import javafx.scene.control.SplitPane
+import javafx.util.Callback
 import org.sketchfx.canvas.CanvasContext
 import org.sketchfx.canvas.CanvasModel
 import org.sketchfx.canvas.CanvasView
@@ -23,6 +25,24 @@ class EditorView(viewModel: EditorViewModel) : SplitPane() {
         styleClass.setAll("editor-view")
         items.setAll(shapeListView, canvasView)
         setDividerPositions(.2)
+        shapeListView.cellFactory = Callback{ StringListCell<Shape>("shape-list-cell") }
+        shapeListView.selectionModel.selectionMode = javafx.scene.control.SelectionMode.MULTIPLE
+
+        sceneProperty().addListener { _, _, newScene ->
+            if (newScene != null) {
+                Bindings.bindContent(shapeListView.items, viewModel.canvasViewModel.shapes())
+                Bindings.bindContent(
+                    viewModel.canvasViewModel.selection.items(),
+                    shapeListView.selectionModel.selectedItems,
+                )
+            } else {
+                Bindings.unbindContent(shapeListView.items, viewModel.canvasViewModel.shapes())
+                Bindings.unbindContent(
+                    viewModel.canvasViewModel.selection.items(),
+                    shapeListView.selectionModel.selectedItems,
+                )
+            }
+        }
     }
 
     fun undo() {

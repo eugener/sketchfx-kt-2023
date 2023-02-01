@@ -142,7 +142,7 @@ data class Shape(
     }
 
     override fun toString(): String {
-        return name
+        return "$name :   $sid"
     }
 
     fun makeCopy( update: (Shape) -> Unit = { _ -> } ): Shape {

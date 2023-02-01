@@ -2,13 +2,14 @@ package org.sketchfx.infra
 
 import javafx.beans.InvalidationListener
 import javafx.collections.FXCollections
+import javafx.collections.ObservableList
 
 class SelectionModel<T> {
 
-    private val selection = FXCollections.observableSet<T>()
+    private val selection = FXCollections.observableArrayList<T>()
     private var suppressChangeEvents = false
 
-    fun items(): Set<T> = selection
+    fun items(): ObservableList<T> = selection
     fun clear(): Unit = selection.clear()
 
     fun add(vararg items: T): Boolean = selection.addAll(items.asSequence())
@@ -26,7 +27,7 @@ class SelectionModel<T> {
 
     fun contains(item: T): Boolean = selection.contains(item)
 
-    fun onChange(action: (Set<T>) -> Unit) {
+    fun onChange(action: (Collection<T>) -> Unit) {
         selection.addListener( InvalidationListener {
             if (!suppressChangeEvents) {
                 action(selection)
