@@ -8,15 +8,11 @@ import javafx.geometry.Bounds
 import javafx.scene.transform.Scale
 import javafx.scene.transform.Transform
 import javafx.scene.transform.Translate
-import org.sketchfx.cmd.CmdRelocateShapes
-import org.sketchfx.event.SelectionBounds
-import org.sketchfx.event.SelectionUpdate
-import org.sketchfx.event.ShapeRelocated
 import org.sketchfx.shape.Shape
 
 class CanvasViewModel(private val model: CanvasModel): CanvasContext() {
 
-    fun shapes(): ObservableList<Shape> = model.shapes
+    override fun shapes(): ObservableList<Shape> = model.shapes
 
     val transformProperty: ObjectProperty<Transform> = SimpleObjectProperty(buildTransform())
     val boundsInParentProperty: ObjectProperty<Bounds> = SimpleObjectProperty()
@@ -53,32 +49,9 @@ class CanvasViewModel(private val model: CanvasModel): CanvasContext() {
         model.scaleProperty.addListener(updateTransform)
         model.translateProperty.addListener(updateTransform)
 
-        eventBus.subscribe(::selectionAddHandler)
-        eventBus.subscribe(::shapeRelocatedHandler)
-        eventBus.subscribe(::selectionBoundsHandler)
+
+
     }
 
-    private fun selectionBoundsHandler(e: SelectionBounds) {
-        val selectedShapes = shapes().parallelStream().filter{it.boundsInParent.intersects(e.bounds)}
-        selection.set(*selectedShapes.toList().toTypedArray())
-    }
 
-    private fun selectionAddHandler(e: SelectionUpdate) {
-        if (!e.toggle) {
-            if (!selection.contains(e.shape)) {
-                selection.set(e.shape)
-            }
-        } else {
-            selection.toggle(e.shape)
-        }
-    }
-
-    private fun shapeRelocatedHandler(e: ShapeRelocated) {
-        val cmd = CmdRelocateShapes(selection.items(), e.dx, e.dy, this)
-        if (e.temp) {
-            cmd.run()
-        } else {
-            commandManager.add(cmd)
-        }
-    }
 }
