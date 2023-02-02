@@ -15,12 +15,12 @@ abstract class CanvasContext {
     val selection: SelectionModel<Shape> = SelectionModel()
     val commandManager: CommandManager = CommandManager()
 
+
     init {
         selection.onChange{ fireSelectionChange()}
 
         eventBus.subscribe(::selectionAddHandler)
         eventBus.subscribe(::shapeRelocatedHandler)
-        eventBus.subscribe(::selectionResetHandler)
         eventBus.subscribe(::selectionBoundsHandler)
 
     }
@@ -31,10 +31,8 @@ abstract class CanvasContext {
 
     abstract fun shapes(): Collection<Shape>
 
-    private var selectionChangeSource: Any = this
-
     fun fireSelectionChange() {
-        eventBus.publish(SelectionChanged(selection.items(),selectionChangeSource))
+        eventBus.publish(SelectionChanged(selection.items()))
     }
 
     private fun selectionBoundsHandler(e: SelectionBounds) {
@@ -52,16 +50,8 @@ abstract class CanvasContext {
         }
     }
 
-    private fun selectionResetHandler(e: SelectionReset) {
-        if (e.shapes.isEmpty()) {
-            selection.clear()
-        } else {
-            selection.set(*e.shapes.toTypedArray())
-        }
-    }
-
     private fun shapeRelocatedHandler(e: ShapeRelocated) {
-        val cmd = CmdRelocateShapes(selection.items(), e.dx, e.dy, this, this)
+        val cmd = CmdRelocateShapes(selection.items(), e.dx, e.dy, this)
         if (e.temp) {
             cmd.run()
         } else {

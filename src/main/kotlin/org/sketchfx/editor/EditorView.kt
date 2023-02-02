@@ -9,6 +9,7 @@ import org.sketchfx.canvas.CanvasContext
 import org.sketchfx.canvas.CanvasModel
 import org.sketchfx.canvas.CanvasView
 import org.sketchfx.canvas.CanvasViewModel
+import org.sketchfx.fx.SelectionBinder
 import org.sketchfx.shape.Shape
 import kotlin.random.Random
 
@@ -21,6 +22,8 @@ class EditorView(viewModel: EditorViewModel) : SplitPane() {
     val redoAvailableProperty   = canvasView.context.commandManager.redoAvailableProperty
     val canvasTransformProperty = canvasView.context.transformProperty
 
+    private val selectionBinder = SelectionBinder(shapeListView.selectionModel, viewModel.canvasViewModel.selection)
+
     init {
         styleClass.setAll("editor-view")
         items.setAll(shapeListView, canvasView)
@@ -31,16 +34,10 @@ class EditorView(viewModel: EditorViewModel) : SplitPane() {
         sceneProperty().addListener { _, _, newScene ->
             if (newScene != null) {
                 Bindings.bindContent(shapeListView.items, viewModel.canvasViewModel.shapes())
-                Bindings.bindContent(
-                    viewModel.canvasViewModel.selection.items(),
-                    shapeListView.selectionModel.selectedItems,
-                )
+                selectionBinder.bind()
             } else {
                 Bindings.unbindContent(shapeListView.items, viewModel.canvasViewModel.shapes())
-                Bindings.unbindContent(
-                    viewModel.canvasViewModel.selection.items(),
-                    shapeListView.selectionModel.selectedItems,
-                )
+                selectionBinder.unbind()
             }
         }
     }

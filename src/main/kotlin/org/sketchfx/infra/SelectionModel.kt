@@ -15,8 +15,11 @@ class SelectionModel<T> {
     fun add(vararg items: T): Boolean = selection.addAll(items.asSequence())
 
     fun set(vararg items: T) {
-        withChangeSuppression{ selection.clear() }
-        selection.addAll(items.asSequence())
+        selection.setAll(*items)
+    }
+
+    fun set(items: Collection<T>) {
+        selection.setAll(items)
     }
 
     fun toggle(item: T) {
@@ -36,13 +39,15 @@ class SelectionModel<T> {
     }
 
 
-    private fun <A> withChangeSuppression(block: () -> A): A {
-        try {
-            suppressChangeEvents = true
-            return block()
-        } finally {
-            suppressChangeEvents = false
-        }
-    }
+//    private fun <A> withChangeSuppression(block: () -> A): A {
+//        try {
+//            suppressChangeEvents = true
+//            return block()
+//        } finally {
+//            suppressChangeEvents = false
+//        }
+//    }
 
 }
+
+
