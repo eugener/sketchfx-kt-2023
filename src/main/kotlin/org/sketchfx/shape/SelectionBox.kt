@@ -4,7 +4,7 @@ import org.sketchfx.canvas.CanvasContext
 import javafx.geometry.Bounds
 import javafx.scene.Group
 import javafx.scene.Node
-import org.sketchfx.fx.union
+import org.sketchfx.fx.BoundsExt.union
 
 class SelectionBox(selection: Collection<Shape>, context: CanvasContext): Group() {
 
