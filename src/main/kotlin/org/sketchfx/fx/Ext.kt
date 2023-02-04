@@ -24,10 +24,15 @@ object BoundsExt {
 
 }
 
-
 object NodeExt {
 
-    private val nodeListeners = WeakHashMap<Node, ChangeListener<Bounds>>()
+    private val nodeListeners = WeakHashMap<String, ChangeListener<Bounds>>()
+
+    private const val clipperId = "clipper"
+
+    private fun Node.listenerId(suffix: String): String {
+        return "${System.identityHashCode(this)}-$suffix"
+    }
 
     fun Node.enableAutoClipping() {
         val clip = Rectangle()
@@ -35,14 +40,15 @@ object NodeExt {
             clip.width = bounds.width
             clip.height = bounds.height
         }
-        nodeListeners[this] = boundsListener
+
+        nodeListeners[listenerId(clipperId)] = boundsListener
 
         setClip(clip)
         layoutBoundsProperty().addListener(boundsListener)
     }
 
     fun Node.disableAutoClipping() {
-        nodeListeners.remove(this)?.also {
+        nodeListeners.remove(listenerId(clipperId))?.also {
             layoutBoundsProperty().removeListener(it)
         }
 

@@ -31,8 +31,6 @@ class CanvasView(val context: CanvasViewModel) : StackPane()  {
 
     init {
 
-
-
         // setup layers
         children.setAll(
             catchAllLayer,
