@@ -29,12 +29,12 @@ object NodeExt {
     private const val clipperId = "clipper"
 
     fun Node.enableAutoClipping() {
-        val clip = Rectangle()
+        val clipShape = Rectangle()
         val boundsListener = ChangeListener<Bounds> { _, _, bounds ->
-            clip.width  = bounds.width
-            clip.height = bounds.height
+            clipShape.width  = bounds.width
+            clipShape.height = bounds.height
         }
-        setClip(clip)
+        clip = clipShape
         layoutBoundsProperty().addListener(boundsListener)
         properties[clipperId] = boundsListener
     }
@@ -42,7 +42,7 @@ object NodeExt {
     fun Node.disableAutoClipping() {
 
         properties.remove(clipperId)?.apply{
-            setClip(null)
+            clip = null
             @Suppress("UNCHECKED_CAST")
             layoutBoundsProperty().removeListener(this as ChangeListener<Bounds>)
         }
