@@ -26,31 +26,27 @@ object BoundsExt {
 
 object NodeExt {
 
-    private val nodeListeners = WeakHashMap<String, ChangeListener<Bounds>>()
-
     private const val clipperId = "clipper"
-
-    private fun Node.listenerId(suffix: String): String {
-        return "${System.identityHashCode(this)}-$suffix"
-    }
 
     fun Node.enableAutoClipping() {
         val clip = Rectangle()
         val boundsListener = ChangeListener<Bounds> { _, _, bounds ->
-            clip.width = bounds.width
+            clip.width  = bounds.width
             clip.height = bounds.height
         }
-
-        nodeListeners[listenerId(clipperId)] = boundsListener
-
         setClip(clip)
         layoutBoundsProperty().addListener(boundsListener)
+        properties[clipperId] = boundsListener
     }
 
     fun Node.disableAutoClipping() {
-        nodeListeners.remove(listenerId(clipperId))?.also {
-            layoutBoundsProperty().removeListener(it)
+
+        properties.remove(clipperId)?.apply{
+            setClip(null)
+            @Suppress("UNCHECKED_CAST")
+            layoutBoundsProperty().removeListener(this as ChangeListener<Bounds>)
         }
+
 
     }
 
