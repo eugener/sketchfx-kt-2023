@@ -7,8 +7,7 @@ import javafx.scene.input.ScrollEvent
 import javafx.scene.input.ZoomEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.transform.Transform
-import org.sketchfx.fx.NodeExt.disableAutoClipping
-import org.sketchfx.fx.NodeExt.enableAutoClipping
+import org.sketchfx.fx.NodeExt.autoClipping
 
 
 class CanvasView(val context: CanvasViewModel) : StackPane()  {
@@ -40,7 +39,7 @@ class CanvasView(val context: CanvasViewModel) : StackPane()  {
 
         sceneProperty().addListener { _, _, newScene ->
             if (newScene != null) {
-                enableAutoClipping()
+                autoClipping = true
                 addEventFilter(ZoomEvent.ANY, ::zoomHandler)
                 addEventFilter(ScrollEvent.ANY, ::scrollHandler)
 
@@ -48,7 +47,7 @@ class CanvasView(val context: CanvasViewModel) : StackPane()  {
                 this.canvasTransformProperty.bind(context.transformProperty)
                 Bindings.bindContent(shapeLayer.shapes(), context.shapes())
             } else {
-                disableAutoClipping()
+                autoClipping = false
                 removeEventFilter(ZoomEvent.ANY, ::zoomHandler)
                 removeEventFilter(ScrollEvent.ANY, ::scrollHandler)
 

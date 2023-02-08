@@ -3,7 +3,6 @@ package org.sketchfx.fx
 import javafx.beans.Observable
 import javafx.collections.ObservableList
 import javafx.scene.control.MultipleSelectionModel
-import java.lang.RuntimeException
 
 class SelectionBinder<T>(private val fxModel: MultipleSelectionModel<T>, private val otherModel: ObservableList<T>) :
     ObservableBinder(fxModel, otherModel) {
@@ -29,6 +28,8 @@ class SelectionBinder<T>(private val fxModel: MultipleSelectionModel<T>, private
     }
 
 }
+
+
 
 
 
