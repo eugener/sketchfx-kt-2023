@@ -49,8 +49,7 @@ class CanvasViewModel(private val model: CanvasModel): CanvasContext() {
         model.scaleProperty.addListener(updateTransform)
         model.translateProperty.addListener(updateTransform)
 
-
-
+        //TODO remove listeners on dispose
     }
 
 

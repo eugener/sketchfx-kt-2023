@@ -10,6 +10,7 @@ import org.sketchfx.shape.Shape
 
 class CanvasModel {
 
+    // TODO do we need a shape model?
     val shapes: ObservableList<Shape> = FXCollections.observableArrayList()
 
     val scaleProperty: ObjectProperty<Scale> = SimpleObjectProperty(Scale(1.0,1.0))
