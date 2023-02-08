@@ -47,7 +47,6 @@ object NodeExt {
             layoutBoundsProperty().removeListener(this as ChangeListener<Bounds>)
         }
 
-
     }
 
 }

@@ -22,7 +22,10 @@ class EditorView(viewModel: EditorViewModel) : SplitPane() {
     val redoAvailableProperty   = canvasView.context.commandManager.redoAvailableProperty
     val canvasTransformProperty = canvasView.context.transformProperty
 
-    private val selectionBinder = SelectionBinder(shapeListView.selectionModel, viewModel.canvasViewModel.selection)
+    private val selectionBinder = SelectionBinder(
+        shapeListView.selectionModel,
+        viewModel.canvasViewModel.selection.items()
+    )
 
     init {
         styleClass.setAll("editor-view")

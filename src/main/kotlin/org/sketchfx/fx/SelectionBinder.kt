@@ -1,35 +1,36 @@
 package org.sketchfx.fx
 
 import javafx.beans.InvalidationListener
+import javafx.collections.ObservableList
 import javafx.scene.control.MultipleSelectionModel
 import org.sketchfx.infra.RaceConditionResolver
-import org.sketchfx.infra.SelectionModel
 
-class SelectionBinder<T> (private val fxModel: MultipleSelectionModel<T>, private val sketchModel: SelectionModel<T>): RaceConditionResolver() {
+class SelectionBinder<T> (private val fxModel: MultipleSelectionModel<T>, private val otherModel: ObservableList<T>): RaceConditionResolver() {
 
     private val selectionModelListener = InvalidationListener { _ ->
         guardLeft {
-            sketchModel.set(fxModel.selectedItems)
+            otherModel.setAll(fxModel.selectedItems)
+        }
+    }
+
+    private val otherListener = InvalidationListener { _ ->
+        guardRight {
+            fxModel.clearSelection()
+            otherModel.forEach { fxModel.select(it) }
         }
     }
 
     fun bind() {
-
-        sketchModel.onChange { sel ->
-            guardRight {
-                fxModel.clearSelection()
-                sel.forEach { fxModel.select(it) }
-            }
-        }
-
+        otherModel.addListener(otherListener)
         fxModel.selectedItems.addListener(selectionModelListener)
-
     }
 
     fun unbind() {
+        otherModel.removeListener(otherListener)
         fxModel.selectedItems.removeListener(selectionModelListener)
     }
 
 
 }
+
 
