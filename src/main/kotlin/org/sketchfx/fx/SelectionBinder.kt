@@ -1,36 +1,35 @@
 package org.sketchfx.fx
 
-import javafx.beans.InvalidationListener
+import javafx.beans.Observable
 import javafx.collections.ObservableList
 import javafx.scene.control.MultipleSelectionModel
-import org.sketchfx.infra.RaceConditionResolver
+import java.lang.RuntimeException
 
-class SelectionBinder<T> (private val fxModel: MultipleSelectionModel<T>, private val otherModel: ObservableList<T>): RaceConditionResolver() {
+class SelectionBinder<T>(private val fxModel: MultipleSelectionModel<T>, private val otherModel: ObservableList<T>) :
+    ObservableBinder(fxModel, otherModel) {
 
-    private val selectionModelListener = InvalidationListener { _ ->
-        guardLeft {
-            otherModel.setAll(fxModel.selectedItems)
+    override fun asObservable(source: Any): Observable {
+        return when (source) {
+            fxModel -> fxModel.selectedItems
+            otherModel -> otherModel
+            else -> throw RuntimeException("Unknown observable source")
         }
     }
 
-    private val otherListener = InvalidationListener { _ ->
-        guardRight {
-            fxModel.clearSelection()
-            otherModel.forEach { fxModel.select(it) }
+    override fun update(source: Any) {
+        when (source) {
+            fxModel -> otherModel.setAll(fxModel.selectedItems)
+            otherModel -> {
+                fxModel.clearSelection()
+                otherModel.forEach { fxModel.select(it) }
+            }
+
+            else -> throw RuntimeException("Unknown source")
         }
     }
-
-    fun bind() {
-        otherModel.addListener(otherListener)
-        fxModel.selectedItems.addListener(selectionModelListener)
-    }
-
-    fun unbind() {
-        otherModel.removeListener(otherListener)
-        fxModel.selectedItems.removeListener(selectionModelListener)
-    }
-
 
 }
+
+
 
 
