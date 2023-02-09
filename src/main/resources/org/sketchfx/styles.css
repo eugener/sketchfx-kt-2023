@@ -40,7 +40,7 @@
 }
 
 .split-pane-divider {
-    -fx-padding: 0 2.5 0 0;
+    -fx-padding: 0 1 0 0;
 }
 
 .list-view {
