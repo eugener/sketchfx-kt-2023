@@ -40,7 +40,11 @@ data class Shape(
         private val highlightFill: Color = Color.web(highlight, 0.05)
         private val highlightStroke: Color = Color.web(highlight)
 
+        private val selectionFill: Color = Color.TRANSPARENT
         private val selectionStroke: Color = Color.web(highlight)
+
+        private val selectionBandFill: Color = Color.web(highlight, 0.1)
+        private val selectionBandStroke: Color = Color.web(highlight, 0.2)
 
         private const val handleSize: Int = 8
 
@@ -59,24 +63,24 @@ data class Shape(
 
         fun hover( source: Shape): Node {
             return source.makeCopy { s ->
-                s.fillColorProperty.set(highlightFill)
-                s.strokeColorProperty.set(highlightStroke)
+                s.fill = highlightFill
+                s.stroke = highlightStroke
                 s.isMouseTransparent = true
             }
         }
 
         fun selection(source: Shape): Node  {
             return source.makeCopy { s ->
-                s.fillColorProperty.set(Color.TRANSPARENT)
-                s.strokeColorProperty.set(selectionStroke)
+                s.fill = Color.TRANSPARENT
+                s.stroke = selectionStroke
                 s.isMouseTransparent = true
             }
         }
 
         fun selectionBand(bounds: Bounds, context: CanvasContext): Node {
             return Rectangle(bounds.minX, bounds.minY, bounds.width, bounds.height).apply {
-                fill = highlightFill
-                stroke = highlightStroke
+                fill = selectionBandFill
+                stroke = selectionBandStroke
                 strokeWidth = 1 / context.scale
                 isMouseTransparent = true
             }
@@ -84,7 +88,7 @@ data class Shape(
 
         fun selectionBounds( bounds: Bounds, context: CanvasContext): Node {
             return Rectangle( bounds.minX, bounds.minY, bounds.width, bounds.height ).apply {
-                fill = Color.TRANSPARENT
+                fill = selectionFill
                 stroke = selectionStroke
                 strokeWidth = 1 / context.scale
                 isMouseTransparent = true
@@ -106,8 +110,16 @@ data class Shape(
 
     }
 
-    val fillColorProperty: ObjectProperty<Paint> =  AttrProperty<Paint>(defaultStroke)
-    val strokeColorProperty: ObjectProperty<Paint> = AttrProperty<Paint>(defaultFill)
+    private val fillColorProperty: ObjectProperty<Paint> =  AttrProperty<Paint>(defaultStroke)
+    var fill : Paint
+        get() = fillColorProperty.get()
+        set(value) = fillColorProperty.set(value)
+
+
+    private val strokeColorProperty: ObjectProperty<Paint> = AttrProperty<Paint>(defaultFill)
+    var stroke : Paint
+        get() = strokeColorProperty.get()
+        set(value) = strokeColorProperty.set(value)
 
     private val dragSupport = object: MouseDragSupport(this, context) {
         override fun onDrag(temp: Boolean ){
@@ -152,11 +164,9 @@ data class Shape(
     }
 
     private fun updateAttrs(node: Node): Node {
-        when(node) {
-            is javafx.scene.shape.Shape -> {
-                node.fill = fillColorProperty.get()
-                node.stroke = strokeColorProperty.get()
-            }
+        if (node is javafx.scene.shape.Shape) {
+            node.fill   = fill
+            node.stroke = stroke
         }
         return node
     }
