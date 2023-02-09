@@ -11,12 +11,13 @@ import org.sketchfx.canvas.CanvasView
 import org.sketchfx.canvas.CanvasViewModel
 import org.sketchfx.fx.MultipleSelectionModelExt.bindBidirectional
 import org.sketchfx.fx.MultipleSelectionModelExt.unbindBidirectional
+import org.sketchfx.fx.StringListCell
 import org.sketchfx.shape.Shape
 import kotlin.random.Random
 
 class EditorView(viewModel: EditorViewModel) : SplitPane() {
 
-    private val canvasView = CanvasView(viewModel.canvasViewModel)
+    private val canvasView = CanvasView(viewModel)
     private val shapeListView = ListView<Shape>()
 
     val undoAvailableProperty   = canvasView.context.commandManager.undoAvailableProperty
@@ -32,11 +33,11 @@ class EditorView(viewModel: EditorViewModel) : SplitPane() {
 
         sceneProperty().addListener { _, _, newScene ->
             if (newScene != null) {
-                Bindings.bindContent(shapeListView.items, viewModel.canvasViewModel.shapes())
-                shapeListView.selectionModel.bindBidirectional(viewModel.canvasViewModel.selection.items())
+                Bindings.bindContent(shapeListView.items, viewModel.shapes())
+                shapeListView.selectionModel.bindBidirectional(viewModel.selection.items())
             } else {
-                Bindings.unbindContent(shapeListView.items, viewModel.canvasViewModel.shapes())
-                shapeListView.selectionModel.unbindBidirectional(viewModel.canvasViewModel.selection.items())
+                Bindings.unbindContent(shapeListView.items, viewModel.shapes())
+                shapeListView.selectionModel.unbindBidirectional(viewModel.selection.items())
             }
         }
     }
@@ -50,16 +51,16 @@ class EditorView(viewModel: EditorViewModel) : SplitPane() {
     }
 }
 
-class EditorViewModel(model: CanvasModel) {
+class EditorViewModel(model: CanvasModel): CanvasViewModel(model) {
 
-    val canvasViewModel = CanvasViewModel(model)
+//    val canvasViewModel = CanvasViewModel(model)
 
     init {
         // TODO for testing only
         model.shapes.setAll(
-            rect(100.0, 100.0, canvasViewModel),
-            oval(150.0, 200.0, canvasViewModel),
-            rect(300.0, 300.0, canvasViewModel),
+            rect(100.0, 100.0, this),
+            oval(150.0, 200.0, this),
+            rect(300.0, 300.0, this),
         )
 
     }

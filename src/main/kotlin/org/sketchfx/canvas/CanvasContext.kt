@@ -15,7 +15,6 @@ abstract class CanvasContext {
     val selection: SelectionModel<Shape> = SelectionModel()
     val commandManager: CommandManager = CommandManager()
 
-
     init {
         selection.onChange{ fireSelectionChange()}
 
@@ -33,6 +32,10 @@ abstract class CanvasContext {
 
     fun fireSelectionChange() {
         eventBus.publish(SelectionChanged(selection.items()))
+    }
+
+    fun fireSelectionRelocated() {
+        eventBus.publish(SelectionRelocated(selection.items()))
     }
 
     private fun selectionBoundsHandler(e: SelectionBounds) {

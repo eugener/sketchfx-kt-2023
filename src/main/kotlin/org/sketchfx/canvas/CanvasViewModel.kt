@@ -10,7 +10,7 @@ import javafx.scene.transform.Transform
 import javafx.scene.transform.Translate
 import org.sketchfx.shape.Shape
 
-class CanvasViewModel(private val model: CanvasModel): CanvasContext() {
+open class CanvasViewModel(private val model: CanvasModel): CanvasContext() {
 
     override fun shapes(): ObservableList<Shape> = model.shapes
 

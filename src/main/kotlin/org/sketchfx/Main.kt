@@ -97,7 +97,7 @@ class App: Application() {
     }
 
     private fun buildTab(title: String, model: CanvasModel): Tab {
-        return Tab(title, EditorView( EditorViewModel(model))).apply {
+        return Tab(title, EditorView(EditorViewModel(model))).apply {
             userData = model
             isClosable = false
         }

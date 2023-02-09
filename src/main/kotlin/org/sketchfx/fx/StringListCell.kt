@@ -1,4 +1,4 @@
-package org.sketchfx.editor
+package org.sketchfx.fx
 
 import javafx.scene.control.ListCell
 
