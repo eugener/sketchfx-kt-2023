@@ -25,10 +25,10 @@ class App: Application() {
 
         setUserAgentStylesheet(STYLESHEET_MODENA)
 
-        val undoMenu = buildMenu("Undo", "meta+Z") {
+        val undoMenu = newMenuItem("Undo", "meta+Z") {
             getCurrentEditor()?.undo()
         }
-        val redoMenu = buildMenu("Redo", "meta+shift+Z") {
+        val redoMenu = newMenuItem("Redo", "meta+shift+Z") {
             getCurrentEditor()?.redo()
         }
 
@@ -37,13 +37,12 @@ class App: Application() {
             redoMenu
         )
 
-        val menuBar = MenuBar(editMenu)
-        menuBar.isUseSystemMenuBar = true
+        val menuBar = MenuBar(editMenu).apply {
+            isUseSystemMenuBar = true
+        }
 
         currentEditorProperty.bind(tabs.selectionModel.selectedItemProperty().map { it?.content as? EditorView? })
         currentEditorProperty.addListener { _, oldEditor, newEditor ->
-
-            println("oldEditor: $oldEditor")
 
             oldEditor?.apply {
                 undoMenu.disableProperty().unbind()
@@ -57,9 +56,9 @@ class App: Application() {
         }
 
         tabs.tabs.setAll(
-            buildTab("Canvas 1", CanvasModel()),
-            buildTab("Canvas 2", CanvasModel()),
-            buildTab("Canvas 3", CanvasModel()),
+            newTab("Canvas 1", CanvasModel()),
+            newTab("Canvas 2", CanvasModel()),
+            newTab("Canvas 3", CanvasModel()),
         )
         tabs.selectionModel.select(0)
 
@@ -79,17 +78,17 @@ class App: Application() {
         return currentEditorProperty.get()
     }
 
-    private fun buildTab(title: String, model: CanvasModel): Tab {
+    private fun newTab(title: String, model: CanvasModel): Tab {
         return Tab(title, EditorView(EditorViewModel(model))).apply {
             userData = model
             isClosable = false
         }
     }
 
-    private fun buildMenu(title: String, accelerator: String, action: () -> Unit): MenuItem {
-        val item = MenuItem(title)
-        item.onAction = EventHandler{ action() }
-        item.accelerator = KeyCombination.keyCombination(accelerator)
-        return item
+    private fun newMenuItem(menuTitle: String, menuAccelerator: String, action: () -> Unit): MenuItem {
+        return MenuItem(menuTitle).apply {
+            onAction = EventHandler { action() }
+            accelerator = KeyCombination.keyCombination(menuAccelerator)
+        }
     }
 }
