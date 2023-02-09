@@ -1,7 +1,7 @@
 package org.sketchfx.cmd
 
 import org.sketchfx.canvas.CanvasContext
-import org.sketchfx.event.SelectionChanged
+import org.sketchfx.event.SelectionRelocated
 import org.sketchfx.infra.Command
 import org.sketchfx.shape.Shape
 
@@ -17,6 +17,6 @@ data class CmdRelocateShapes(val shapes: Collection<Shape>, val deltaX: Double, 
             s.layoutX += x
             s.layoutY += y
         }
-        context.eventBus.publish(SelectionChanged(shapes))
+        context.eventBus.publish(SelectionRelocated(shapes))
     }
 }
