@@ -32,30 +32,23 @@ object NodeExt {
 
     var Node.autoClipping: Boolean
         get() = properties.containsKey(clipperId)
-        set(value) {
-            if (value) enableAutoClipping() else disableAutoClipping()
+        set(enable) {
+            if (enable) {
+                clip = Rectangle()
+                val boundsListener = ChangeListener<Bounds> { _, _, bounds ->
+                    (clip as Rectangle).width = bounds.width
+                    (clip as Rectangle).height = bounds.height
+                }
+                layoutBoundsProperty().addListener(boundsListener)
+                properties[clipperId] = boundsListener
+            } else {
+                properties.remove(clipperId)?.apply {
+                    @Suppress("UNCHECKED_CAST")
+                    layoutBoundsProperty().removeListener(this as ChangeListener<Bounds>)
+                    clip = null
+                }
+            }
         }
-
-    private fun Node.enableAutoClipping() {
-        val clipShape = Rectangle()
-        val boundsListener = ChangeListener<Bounds> { _, _, bounds ->
-            clipShape.width  = bounds.width
-            clipShape.height = bounds.height
-        }
-        clip = clipShape
-        layoutBoundsProperty().addListener(boundsListener)
-        properties[clipperId] = boundsListener
-    }
-
-    private fun Node.disableAutoClipping() {
-
-        properties.remove(clipperId)?.apply{
-            clip = null
-            @Suppress("UNCHECKED_CAST")
-            layoutBoundsProperty().removeListener(this as ChangeListener<Bounds>)
-        }
-
-    }
 
 }
 
