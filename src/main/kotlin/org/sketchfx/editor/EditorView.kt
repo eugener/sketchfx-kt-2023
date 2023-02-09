@@ -27,7 +27,6 @@ class EditorView(viewModel: EditorViewModel) : BorderPane() {
     val undoAvailableProperty   = canvasView.context.commandManager.undoAvailableProperty
     val redoAvailableProperty   = canvasView.context.commandManager.redoAvailableProperty
 
-
     init {
         styleClass.setAll("editor-view")
         val splitPane = SplitPane()

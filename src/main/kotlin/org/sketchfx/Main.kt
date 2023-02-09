@@ -1,6 +1,8 @@
 package org.sketchfx
 
 import javafx.application.Application
+import javafx.beans.property.ObjectProperty
+import javafx.beans.property.SimpleObjectProperty
 import javafx.event.EventHandler
 import javafx.scene.control.*
 import javafx.scene.input.KeyCombination
@@ -17,12 +19,11 @@ fun main(args: Array<String>) {
 class App: Application() {
 
     private val tabs = TabPane()
-
+    private val currentEditorProperty: ObjectProperty<EditorView?> = SimpleObjectProperty<EditorView?>(null)
 
     override fun start(primaryStage: Stage?) {
 
         setUserAgentStylesheet(STYLESHEET_MODENA)
-
 
         val undoMenu = buildMenu("Undo", "meta+Z") {
             getCurrentEditor()?.undo()
@@ -30,7 +31,6 @@ class App: Application() {
         val redoMenu = buildMenu("Redo", "meta+shift+Z") {
             getCurrentEditor()?.redo()
         }
-
 
         val editMenu = Menu("Edit", null,
             undoMenu,
@@ -40,14 +40,17 @@ class App: Application() {
         val menuBar = MenuBar(editMenu)
         menuBar.isUseSystemMenuBar = true
 
-        tabs.selectionModel.selectedItemProperty().addListener { _, oldTab, newTab ->
+        currentEditorProperty.bind(tabs.selectionModel.selectedItemProperty().map { it?.content as? EditorView? })
+        currentEditorProperty.addListener { _, oldEditor, newEditor ->
 
-            getEditor(oldTab)?.apply {
+            println("oldEditor: $oldEditor")
+
+            oldEditor?.apply {
                 undoMenu.disableProperty().unbind()
                 redoMenu.disableProperty().unbind()
             }
 
-            getEditor(newTab)?.apply {
+            newEditor?.apply {
                 undoMenu.disableProperty().bind(undoAvailableProperty.not())
                 redoMenu.disableProperty().bind(redoAvailableProperty.not())
             }
@@ -72,12 +75,8 @@ class App: Application() {
 
     }
 
-    private fun getEditor( tab: Tab?): EditorView? {
-        return tab?.content as EditorView?
-    }
-
     private fun getCurrentEditor(): EditorView? {
-        return getEditor(tabs.selectionModel.selectedItem)
+        return currentEditorProperty.get()
     }
 
     private fun buildTab(title: String, model: CanvasModel): Tab {
