@@ -1,7 +1,6 @@
 package org.sketchfx
 
 import javafx.application.Application
-import javafx.beans.InvalidationListener
 import javafx.event.EventHandler
 import javafx.scene.control.*
 import javafx.scene.input.KeyCombination
@@ -18,16 +17,12 @@ fun main(args: Array<String>) {
 class App: Application() {
 
     private val tabs = TabPane()
-    private val status = Label("")
+
 
     override fun start(primaryStage: Stage?) {
 
         setUserAgentStylesheet(STYLESHEET_MODENA)
 
-        status.prefWidth = Double.MAX_VALUE
-        status.styleClass.setAll("status-bar")
-
-        val statusListener = InvalidationListener{updateStatus()}
 
         val undoMenu = buildMenu("Undo", "meta+Z") {
             getCurrentEditor()?.undo()
@@ -50,14 +45,11 @@ class App: Application() {
             getEditor(oldTab)?.apply {
                 undoMenu.disableProperty().unbind()
                 redoMenu.disableProperty().unbind()
-                canvasTransformProperty.removeListener(statusListener)
             }
 
             getEditor(newTab)?.apply {
                 undoMenu.disableProperty().bind(undoAvailableProperty.not())
                 redoMenu.disableProperty().bind(redoAvailableProperty.not())
-                canvasTransformProperty.addListener(statusListener)
-                updateStatus()
             }
         }
 
@@ -69,7 +61,7 @@ class App: Application() {
         tabs.selectionModel.select(0)
 
 
-        val browser = BorderPane(tabs, menuBar, null, status, null)
+        val browser = BorderPane(tabs, menuBar, null, null, null)
 
         val scene = javafx.scene.Scene(browser, 1000.0, 600.0)
         scene.stylesheets.add(App::class.java.getResource("styles.css")?.toExternalForm())
@@ -86,14 +78,6 @@ class App: Application() {
 
     private fun getCurrentEditor(): EditorView? {
         return getEditor(tabs.selectionModel.selectedItem)
-    }
-
-    private fun updateStatus() {
-        val transform = getCurrentEditor()?.canvasTransformProperty?.get()
-        transform?.run {
-            status.text = "scale: %.2f; translate: (%.2f : %.2f)".format(transform.mxx, transform.tx, transform.ty)
-        }
-
     }
 
     private fun buildTab(title: String, model: CanvasModel): Tab {

@@ -1,9 +1,12 @@
 package org.sketchfx.editor
 
+import javafx.beans.InvalidationListener
 import javafx.beans.binding.Bindings
 import javafx.geometry.BoundingBox
+import javafx.scene.control.Label
 import javafx.scene.control.ListView
 import javafx.scene.control.SplitPane
+import javafx.scene.layout.BorderPane
 import javafx.util.Callback
 import org.sketchfx.canvas.CanvasContext
 import org.sketchfx.canvas.CanvasModel
@@ -15,31 +18,52 @@ import org.sketchfx.fx.StringListCell
 import org.sketchfx.shape.Shape
 import kotlin.random.Random
 
-class EditorView(viewModel: EditorViewModel) : SplitPane() {
+class EditorView(viewModel: EditorViewModel) : BorderPane() {
 
+    private val status = Label("")
     private val canvasView = CanvasView(viewModel)
     private val shapeListView = ListView<Shape>()
 
     val undoAvailableProperty   = canvasView.context.commandManager.undoAvailableProperty
     val redoAvailableProperty   = canvasView.context.commandManager.redoAvailableProperty
-    val canvasTransformProperty = canvasView.context.transformProperty
+
 
     init {
         styleClass.setAll("editor-view")
-        items.setAll(shapeListView, canvasView)
-        setDividerPositions(.2)
+        val splitPane = SplitPane()
+        splitPane.items.setAll(shapeListView, canvasView)
+        splitPane.setDividerPositions(.2)
+
+        center = splitPane
+        bottom = status
+
+        status.prefWidth = Double.MAX_VALUE
+        status.styleClass.setAll("status-bar")
+        val statusListener = InvalidationListener{updateStatus()}
+
         shapeListView.cellFactory = Callback{ StringListCell<Shape>("shape-list-cell") }
         shapeListView.selectionModel.selectionMode = javafx.scene.control.SelectionMode.MULTIPLE
 
+        val canvasTransformProperty = canvasView.context.transformProperty
         sceneProperty().addListener { _, _, newScene ->
             if (newScene != null) {
                 Bindings.bindContent(shapeListView.items, viewModel.shapes())
                 shapeListView.selectionModel.bindBidirectional(viewModel.selection.items())
+                canvasTransformProperty.addListener(statusListener)
+                updateStatus()
             } else {
                 Bindings.unbindContent(shapeListView.items, viewModel.shapes())
                 shapeListView.selectionModel.unbindBidirectional(viewModel.selection.items())
+                canvasTransformProperty.removeListener(statusListener)
             }
         }
+    }
+
+    private fun updateStatus() {
+        canvasView.context.transformProperty.get()?.run {
+            status.text = "scale: %.2f; translate: (%.2f : %.2f)".format(mxx, tx, ty)
+        }
+
     }
 
     fun undo() {
