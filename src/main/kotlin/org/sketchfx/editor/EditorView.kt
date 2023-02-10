@@ -32,18 +32,16 @@ class EditorView(viewModel: EditorViewModel) : BorderPane() {
         selectionModel.selectionMode = javafx.scene.control.SelectionMode.MULTIPLE
     }
 
-    val undoAvailableProperty   = canvasView.context.commandManager.undoAvailableProperty
-    val redoAvailableProperty   = canvasView.context.commandManager.redoAvailableProperty
+    val undoAvailableProperty = canvasView.context.commandManager.undoAvailableProperty
+    val redoAvailableProperty = canvasView.context.commandManager.redoAvailableProperty
 
     init {
         styleClass.setAll("editor-view")
 
-        val splitPane = SplitPane().apply {
+        center = SplitPane().apply {
             items.setAll(shapeListView, canvasView)
             setDividerPositions(.2)
         }
-
-        center = splitPane
         bottom = status
 
         val statusListener = InvalidationListener{updateStatus()}
