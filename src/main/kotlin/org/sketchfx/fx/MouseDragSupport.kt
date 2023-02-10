@@ -5,6 +5,8 @@ import javafx.geometry.BoundingBox
 import javafx.geometry.Bounds
 import javafx.geometry.Point2D
 import javafx.scene.Node
+import javafx.scene.input.KeyCode
+import javafx.scene.input.KeyEvent
 import javafx.scene.input.MouseEvent
 import org.sketchfx.canvas.CanvasContext
 import kotlin.math.abs
@@ -12,6 +14,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 private typealias MouseEventHandler = EventHandler<MouseEvent>
+private typealias KeyEventHandler = EventHandler<KeyEvent>
 
 abstract class MouseDragSupport( private val base: Node, private val context: CanvasContext) {
 
@@ -19,30 +22,47 @@ abstract class MouseDragSupport( private val base: Node, private val context: Ca
     private var prevPos: Point2D? = null
     private var nextPos: Point2D? = null
 
-    private val mousePressHandler = MouseEventHandler{ e ->
-        startPos = getPos(e)
-        prevPos = startPos
-        nextPos = startPos
-        onDragStart()
+    private val mouseEventHandler = MouseEventHandler{e ->
+        when (e.eventType) {
+
+            MouseEvent.MOUSE_PRESSED -> {
+                startPos = getPos(e)
+                prevPos = startPos
+                nextPos = startPos
+                base.requestFocus() // to receive key events
+                onDragStart()
+                e.consume()
+            }
+
+            MouseEvent.MOUSE_DRAGGED -> {
+                startPos?.let {
+                    nextPos = getPos(e)
+                    onDrag(true)
+                    prevPos = nextPos
+                    e.consume()
+                }
+            }
+
+            MouseEvent.MOUSE_RELEASED -> {
+                startPos?.let {
+                    nextPos = getPos(e)
+                    onDrag(false)
+                    prevPos = nextPos
+                    e.consume()
+                }
+                startPos = null
+                prevPos = null
+                nextPos = null
+            }
+        }
+
     }
 
-    private val mouseDragHandler = MouseEventHandler{ e ->
-        startPos?.let {
-            nextPos = getPos(e)
-            onDrag(true)
-            prevPos = nextPos
+    private val keyPressHandler = KeyEventHandler { e ->
+        if (e.code == KeyCode.ESCAPE) {
+            onDragCancel()
+            e.consume()
         }
-    }
-
-    private val mouseReleaseHandler = MouseEventHandler{e ->
-        startPos?.let {
-            nextPos = getPos(e)
-            onDrag(false)
-            prevPos = nextPos
-        }
-        startPos = null
-        prevPos = null
-        nextPos = null
     }
 
     private fun getPos( e: MouseEvent ): Point2D {
@@ -51,15 +71,13 @@ abstract class MouseDragSupport( private val base: Node, private val context: Ca
     }
 
     fun enable() {
-        base.addEventHandler(MouseEvent.MOUSE_PRESSED,  mousePressHandler)
-        base.addEventHandler(MouseEvent.MOUSE_DRAGGED,  mouseDragHandler)
-        base.addEventHandler(MouseEvent.MOUSE_RELEASED, mouseReleaseHandler)
+        base.addEventHandler(MouseEvent.ANY, mouseEventHandler)
+        base.addEventHandler(KeyEvent.KEY_PRESSED, keyPressHandler)
     }
 
     fun disable() {
-        base.removeEventHandler(MouseEvent.MOUSE_PRESSED, mousePressHandler)
-        base.removeEventHandler(MouseEvent.MOUSE_DRAGGED, mouseDragHandler)
-        base.removeEventHandler(MouseEvent.MOUSE_RELEASED, mouseReleaseHandler)
+        base.removeEventHandler(MouseEvent.ANY, mouseEventHandler)
+        base.removeEventHandler(KeyEvent.KEY_PRESSED, keyPressHandler)
     }
 
     /**
@@ -71,7 +89,12 @@ abstract class MouseDragSupport( private val base: Node, private val context: Ca
     /**
      * Override this method to handle mouse drag start event
      */
-    fun onDragStart() {}
+    open fun onDragStart() {}
+
+    /**
+     * Override this method to handle mouse drag cancel event
+     */
+    open fun onDragCancel() {}
 
     protected fun currentDelta(): Point2D = nextPos!!.subtract(prevPos).multiply(context.scale)
     protected fun totalDelta(): Point2D = nextPos!!.subtract(startPos).multiply(context.scale)
