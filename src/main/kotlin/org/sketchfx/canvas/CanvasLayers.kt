@@ -44,6 +44,10 @@ class CatchAllLayer(context: CanvasContext): CanvasLayer() {
         override fun onDrag(temp: Boolean){
             context.eventBus.publish(SelectionBand(currentBounds(), temp))
         }
+
+        override fun onDragCancel() {
+            context.selection.clear()
+        }
     }
 
     private val mousePressHandler = EventHandler<MouseEvent> {context.selection.clear()}
