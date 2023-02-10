@@ -18,6 +18,7 @@
 }
 
 .root {
+    -fx-base: #E4E3E7;
     /*TODO Adjust font per OS  */
     -fx-font-family: 'Inter Regular';
     /*-fx-font-size: 0.15in; !* default font size*!*/
@@ -44,12 +45,8 @@
 }
 
 .list-view {
+    -fx-background-color: -fx-base;
     -fx-padding: 7 7 7 7;
-    -fx-border-insets: 0 0 0 0;
-    /*-fx-background-color: grey;*/
-    -fx-border-width: 0 0 0 0;
-    /*-fx-border-color: darkgrey;*/
-    -fx-background-insets: 0 0 0 0;
     /*-fx-border-insets: 0 0 0 0;*/
 }
 
@@ -61,11 +58,9 @@
     -fx-padding: 7 15 7 15;
     -fx-border-width: 0 0 0 0;
     -fx-border-color: darkgrey;
-    -fx-background-insets: 0 0 0 0;
-    -fx-border-insets: 0 0 0 0;
     /*-fx-background-radius: 5;*/
-    -fx-font-size: 13;
-    -fx-background-color: transparent;
+    -fx-font-size: 12;
+    -fx-background-color: -fx-base;
 }
 
 .shape-list-cell:selected {
