@@ -20,30 +20,36 @@ import kotlin.random.Random
 
 class EditorView(viewModel: EditorViewModel) : BorderPane() {
 
-    private val status = Label("")
+    private val status = Label("").apply {
+        prefWidth = Double.MAX_VALUE
+        styleClass.setAll("status-bar")
+    }
+
     private val canvasView = CanvasView(viewModel)
-    private val shapeListView = ListView<Shape>()
+
+    private val shapeListView = ListView<Shape>().apply {
+        cellFactory = Callback{ StringListCell<Shape>("shape-list-cell") }
+        selectionModel.selectionMode = javafx.scene.control.SelectionMode.MULTIPLE
+    }
 
     val undoAvailableProperty   = canvasView.context.commandManager.undoAvailableProperty
     val redoAvailableProperty   = canvasView.context.commandManager.redoAvailableProperty
 
     init {
         styleClass.setAll("editor-view")
-        val splitPane = SplitPane()
-        splitPane.items.setAll(shapeListView, canvasView)
-        splitPane.setDividerPositions(.2)
+
+        val splitPane = SplitPane().apply {
+            items.setAll(shapeListView, canvasView)
+            setDividerPositions(.2)
+        }
 
         center = splitPane
         bottom = status
 
-        status.prefWidth = Double.MAX_VALUE
-        status.styleClass.setAll("status-bar")
         val statusListener = InvalidationListener{updateStatus()}
 
-        shapeListView.cellFactory = Callback{ StringListCell<Shape>("shape-list-cell") }
-        shapeListView.selectionModel.selectionMode = javafx.scene.control.SelectionMode.MULTIPLE
-
         val canvasTransformProperty = canvasView.context.transformProperty
+
         sceneProperty().addListener { _, _, newScene ->
             if (newScene != null) {
                 Bindings.bindContent(shapeListView.items, viewModel.shapes())

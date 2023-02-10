@@ -1,6 +1,8 @@
 package org.sketchfx.shape
 
+import javafx.beans.property.DoubleProperty
 import javafx.beans.property.ObjectProperty
+import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.event.EventHandler
 import javafx.geometry.Bounds
@@ -19,16 +21,16 @@ import org.sketchfx.fx.MouseDragSupport
 import java.util.*
 
 typealias ShapeBuilder = (Bounds) -> Collection<Node>
-typealias MouseEventHandler = EventHandler<MouseEvent>
 
 
 data class Shape(
-    val sid: String = UUID.randomUUID().toString(),
     val name: String,
     private val bounds: Bounds,
     private val buildShape: ShapeBuilder,
     private val context: CanvasContext
     ): Group() {
+
+    val sid: String = UUID.randomUUID().toString()
 
     companion object {
 
@@ -65,6 +67,7 @@ data class Shape(
             return source.makeCopy { s ->
                 s.fill = highlightFill
                 s.stroke = highlightStroke
+                s.strokeWidth = 2.0
                 s.isMouseTransparent = true
             }
         }
@@ -121,6 +124,11 @@ data class Shape(
         get() = strokeColorProperty.get()
         set(value) = strokeColorProperty.set(value)
 
+    private val strokeWidthProperty: DoubleProperty = SimpleDoubleProperty(1.0)
+    var strokeWidth : Double
+        get() = strokeWidthProperty.get()
+        set(value) = strokeWidthProperty.set(value)
+
     private val dragSupport = object: MouseDragSupport(this, context) {
         override fun onDrag(temp: Boolean ){
             val delta = if (temp) currentDelta() else totalDelta()
@@ -132,20 +140,16 @@ data class Shape(
         isPickOnBounds = false
         children.setAll( buildShape(bounds).map(::updateAttrs) )
 
-        val mouseEnterHandler = MouseEventHandler{context.eventBus.publish( ShapeHover( this, true ))}
-        val mouseExitHandler  = MouseEventHandler{context.eventBus.publish( ShapeHover( this, false ))}
-        val mousePressHandler = MouseEventHandler{context.eventBus.publish( SelectionUpdate( this, it.isShiftDown ))}
-
         sceneProperty().addListener { _, _, newScene ->
             if (newScene != null) {
-                addEventHandler(MouseEvent.MOUSE_ENTERED, mouseEnterHandler)
-                addEventHandler(MouseEvent.MOUSE_EXITED, mouseExitHandler)
-                addEventHandler(MouseEvent.MOUSE_PRESSED, mousePressHandler)
+                addEventHandler(MouseEvent.MOUSE_ENTERED, ::mouseEnterHandler)
+                addEventHandler(MouseEvent.MOUSE_EXITED,  ::mouseExitHandler)
+                addEventHandler(MouseEvent.MOUSE_PRESSED, ::mousePressHandler)
                 dragSupport.enable()
             } else {
-                removeEventHandler(MouseEvent.MOUSE_ENTERED, mouseEnterHandler)
-                removeEventHandler(MouseEvent.MOUSE_EXITED, mouseExitHandler)
-                removeEventHandler(MouseEvent.MOUSE_RELEASED, mousePressHandler)
+                removeEventHandler(MouseEvent.MOUSE_ENTERED,  ::mouseEnterHandler)
+                removeEventHandler(MouseEvent.MOUSE_EXITED,   ::mouseExitHandler)
+                removeEventHandler(MouseEvent.MOUSE_RELEASED, ::mousePressHandler)
                 dragSupport.disable()
             }
         }
@@ -167,8 +171,22 @@ data class Shape(
         if (node is javafx.scene.shape.Shape) {
             node.fill   = fill
             node.stroke = stroke
+            node.strokeWidth = strokeWidth / context.scale
         }
         return node
+    }
+
+
+    private fun mouseEnterHandler(event: MouseEvent) {
+        context.eventBus.publish( ShapeHover( this, true ))
+    }
+
+    private fun mouseExitHandler(event: MouseEvent) {
+        context.eventBus.publish( ShapeHover( this, false ))
+    }
+
+    private fun mousePressHandler(event: MouseEvent) {
+        context.eventBus.publish( SelectionUpdate( this, event.isShiftDown ))
     }
 
     private inner class AttrProperty<T>( value: T): SimpleObjectProperty<T>(value) {
