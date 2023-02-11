@@ -1,6 +1,6 @@
 package org.sketchfx.canvas
 
-import javafx.beans.InvalidationListener
+import javafx.beans.binding.Bindings
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.ObservableList
@@ -14,7 +14,12 @@ open class CanvasViewModel(private val model: CanvasModel): CanvasContext() {
 
     override fun shapes(): ObservableList<Shape> = model.shapes
 
-    val transformProperty: ObjectProperty<Transform> = SimpleObjectProperty(buildTransform())
+
+    val transformProperty: ObjectProperty<Transform> = SimpleObjectProperty(buildTransform()).apply {
+        val transformBinding = Bindings.createObjectBinding( ::buildTransform, model.scaleProperty, model.translateProperty)
+        bind(transformBinding)
+        //TODO unbind
+    }
     val boundsInParentProperty: ObjectProperty<Bounds> = SimpleObjectProperty()
 
     private fun buildTransform(): Transform {
@@ -41,16 +46,5 @@ open class CanvasViewModel(private val model: CanvasModel): CanvasContext() {
         set(newTranslate) {
             model.translateProperty.set(Translate(newTranslate.first, newTranslate.second))
         }
-
-    init {
-        val updateTransform = InvalidationListener{
-            transformProperty.set(buildTransform())
-        }
-        model.scaleProperty.addListener(updateTransform)
-        model.translateProperty.addListener(updateTransform)
-
-        //TODO remove listeners on dispose
-    }
-
 
 }
