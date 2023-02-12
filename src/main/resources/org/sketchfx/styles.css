@@ -4,7 +4,6 @@
     src: url('Inter-Regular.ttf');
 }
 
-
 /* this is regular font*/
 @font-face {
     font-family: 'Inter Medium';
@@ -28,7 +27,7 @@
 }
 
 .canvas-view {
-    -fx-background-color: white;
+    /*-fx-background-color: white;*/
     /*-fx-border-insets: 3px;*/
     /*-fx-background-insets: 3px;*/
 }
@@ -40,31 +39,35 @@
     -fx-border-color: darkgrey
 }
 
-.split-pane-divider {
-    -fx-padding: 0 1 0 0;
-}
+/*.split-pane-divider {*/
+/*    -fx-padding: 0 1 0 0;*/
+/*}*/
 
-.list-view {
-    -fx-background-color: -fx-base;
-    -fx-padding: 7 7 7 7;
-    /*-fx-border-insets: 0 0 0 0;*/
-}
+/*.list-view {*/
+/*    -fx-background-color: -fx-base;*/
+/*    -fx-padding: 7 7 7 7;*/
+/*    !*-fx-border-insets: 0 0 0 0;*!*/
+/*}*/
 
 .list-view .scroll-bar:horizontal {
     -fx-scale-x: 0;
 }
 
 .shape-list-cell {
-    -fx-padding: 7 15 7 15;
-    -fx-border-width: 0 0 0 0;
-    -fx-border-color: darkgrey;
+    /*-fx-padding: 7 15 7 15;*/
+    /*-fx-border-width: 0 0 0 0;*/
+    /*-fx-border-color: darkgrey;*/
     /*-fx-background-radius: 5;*/
-    -fx-font-size: 12;
-    -fx-background-color: -fx-base;
+    -fx-font-size: 13;
+    /*-fx-background-color: -fx-base;*/
 }
 
-.shape-list-cell:selected {
-    -fx-text-fill:white;
-    -fx-background-color: -fx-accent;
+/*.shape-list-cell:selected {*/
+/*    -fx-text-fill:white;*/
+/*    -fx-background-color: -fx-accent;*/
+/*}*/
+
+.menu, .menu-item {
+    -fx-font-size: 13;
 }
 

@@ -23,6 +23,7 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
+    implementation("io.github.mkpaz:atlantafx-base:1.2.0")
 }
 
 tasks.test {

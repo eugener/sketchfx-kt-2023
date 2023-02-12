@@ -1,5 +1,6 @@
 package org.sketchfx
 
+import atlantafx.base.theme.PrimerLight
 import javafx.application.Application
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleObjectProperty
@@ -11,6 +12,7 @@ import javafx.stage.Stage
 import org.sketchfx.canvas.CanvasModel
 import org.sketchfx.editor.EditorView
 import org.sketchfx.editor.EditorViewModel
+
 
 fun main(args: Array<String>) {
     Application.launch(App::class.java,  *args)
@@ -66,6 +68,8 @@ class App: Application() {
         val browser = BorderPane(tabs, menuBar, null, null, null)
 
         val scene = javafx.scene.Scene(browser, 1000.0, 600.0)
+        setUserAgentStylesheet(PrimerLight().userAgentStylesheet)
+//        setUserAgentStylesheet(PrimerDark().userAgentStylesheet)
         scene.stylesheets.add(App::class.java.getResource("styles.css")?.toExternalForm())
 
         primaryStage?.scene = scene
