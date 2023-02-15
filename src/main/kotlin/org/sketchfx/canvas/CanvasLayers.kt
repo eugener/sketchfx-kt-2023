@@ -38,15 +38,41 @@ class ShapeCanvasLayer : CanvasLayer() {
 
 }
 
+enum class MouseDragMode {
+    SELECTION,
+    BASIC_SHAPE_ADD
+}
+
 class CatchAllLayer(context: CanvasContext): CanvasLayer() {
 
     private val dragSupport = object: MouseDragSupport(this, context) {
-        override fun onDrag(temp: Boolean){
-            context.eventBus.publish(SelectionBand(currentBounds(), temp))
+
+        override fun onDrag(temp: Boolean) {
+
+            when (context.mouseDragMode) {
+                MouseDragMode.SELECTION -> {
+                    val event = SelectionBand(currentBounds(), temp)
+                    context.eventBus.publish(event)
+                }
+
+                MouseDragMode.BASIC_SHAPE_ADD -> {
+                    val shape = Shape.basicShape(context.basicShape, currentBounds(), context).apply {
+                        // temp shape has to be mouse-transparent for selection to work properly
+                        isMouseTransparent = temp
+                    }
+                    val event = BasicSelectionShapeAdd(shape, temp)
+                    context.eventBus.publish(event)
+                }
+            }
+
         }
 
         override fun onDragCancel() {
-            context.selection.clear()
+            when(context.mouseDragMode) {
+                MouseDragMode.SELECTION -> context.selection.clear()
+                MouseDragMode.BASIC_SHAPE_ADD -> context.mouseDragMode = MouseDragMode.SELECTION
+            }
+
         }
     }
 
@@ -87,11 +113,13 @@ class OverlayCanvasLayer(private val context: CanvasContext): CanvasLayer() {
                 context.eventBus.subscribe(::selectionChangeHandler)
                 context.eventBus.subscribe(::selectionRelocatedHandler)
                 context.eventBus.subscribe(::selectionBandHandler)
+                context.eventBus.subscribe(::basicShapeAddHandler)
             } else {
                 context.eventBus.unsubscribe(::shapeHoverHandler)
                 context.eventBus.unsubscribe(::selectionChangeHandler)
                 context.eventBus.unsubscribe(::selectionRelocatedHandler)
                 context.eventBus.unsubscribe(::selectionBandHandler)
+                context.eventBus.unsubscribe(::basicShapeAddHandler)
             }
         }
     }
@@ -107,6 +135,28 @@ class OverlayCanvasLayer(private val context: CanvasContext): CanvasLayer() {
 
     private fun selectionBandHandler( e: SelectionBand) {
        showBand(e.bounds, e.on)
+    }
+
+    private fun basicShapeAddHandler( e: BasicSelectionShapeAdd) {
+        showBasicShape(e.shape, e.temp)
+    }
+
+    private fun showBasicShape(shape: Shape, temp: Boolean) {
+        if (temp) {
+            bandGroup.children.setAll(shape)
+//            val b = shape.boundsInParent
+//            bandGroup.children.setAll(Rectangle(b.minX, b.minY, b.width, b.height))
+//            bandGroup.children.setAll(Shape.hover(shape))
+        } else {
+            try {
+                bandGroup.children.clear()
+            } finally {
+                context.mouseDragMode = MouseDragMode.SELECTION
+                context.shapes().add(shape)
+                context.selection.set(shape)
+            }
+
+        }
     }
 
     private fun selectionChangeHandler(e: SelectionChanged) {

@@ -3,9 +3,7 @@ package org.sketchfx.editor
 import javafx.beans.InvalidationListener
 import javafx.beans.binding.Bindings
 import javafx.geometry.BoundingBox
-import javafx.scene.control.Label
-import javafx.scene.control.ListView
-import javafx.scene.control.SplitPane
+import javafx.scene.control.*
 import javafx.scene.layout.BorderPane
 import javafx.util.Callback
 import org.sketchfx.canvas.CanvasContext
@@ -15,6 +13,7 @@ import org.sketchfx.canvas.CanvasViewModel
 import org.sketchfx.fx.MultipleSelectionModelExt.bindBidirectional
 import org.sketchfx.fx.MultipleSelectionModelExt.unbindBidirectional
 import org.sketchfx.fx.StringListCell
+import org.sketchfx.shape.BasicShapeType
 import org.sketchfx.shape.Shape
 import kotlin.random.Random
 
@@ -25,22 +24,41 @@ class EditorView(viewModel: EditorViewModel) : BorderPane() {
         styleClass.setAll("status-bar")
     }
 
+    private val canvasToolBar = ToolBar().apply {
+        minHeight = 40.0
+        items.setAll(
+            MenuButton("Shape").apply {
+                BasicShapeType.values().forEach { shape ->
+                    items.add(MenuItem(shape.title()).apply {
+                        setOnAction { canvasView.addBasicShape(shape) }
+                    })
+                }
+            },
+        )
+    }
     private val canvasView = CanvasView(viewModel)
 
+    private val shapeListToolBar = ToolBar().apply {
+        minHeight = 40.0
+    }
     private val shapeListView = ListView<Shape>().apply {
         cellFactory = Callback{ StringListCell<Shape>("shape-list-cell") }
-        selectionModel.selectionMode = javafx.scene.control.SelectionMode.MULTIPLE
+        selectionModel.selectionMode = SelectionMode.MULTIPLE
     }
 
     val undoAvailableProperty = canvasView.context.commandManager.undoAvailableProperty
     val redoAvailableProperty = canvasView.context.commandManager.redoAvailableProperty
 
+
     init {
         styleClass.setAll("editor-view")
 
         center = SplitPane().apply {
-            items.setAll(shapeListView, canvasView)
             setDividerPositions(.2)
+            items.setAll(
+                BorderPane(shapeListView, shapeListToolBar, null, null, null),
+                BorderPane(canvasView, canvasToolBar,null, null, null),
+            )
         }
         bottom = status
 

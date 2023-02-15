@@ -28,7 +28,7 @@ open class CanvasViewModel(private val model: CanvasModel): CanvasContext() {
 
     override val transform: Transform
         get() = transformProperty.get()
-
+ 
     override var scale: Double
         get() = model.scaleProperty.get().x
         set(newScale) {

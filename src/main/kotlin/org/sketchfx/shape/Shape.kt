@@ -4,7 +4,6 @@ import javafx.beans.property.DoubleProperty
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleObjectProperty
-import javafx.event.EventHandler
 import javafx.geometry.Bounds
 import javafx.scene.Group
 import javafx.scene.Node
@@ -20,14 +19,11 @@ import org.sketchfx.event.ShapeRelocated
 import org.sketchfx.fx.MouseDragSupport
 import java.util.*
 
-typealias ShapeBuilder = (Bounds) -> Collection<Node>
-
-
 data class Shape(
     val name: String,
     private val bounds: Bounds,
-    private val buildShape: ShapeBuilder,
-    private val context: CanvasContext
+    private val context: CanvasContext,
+    private val buildShape: (Bounds) -> Collection<Node>
     ): Group() {
 
     val sid: String = UUID.randomUUID().toString()
@@ -50,19 +46,23 @@ data class Shape(
 
         private const val handleSize: Int = 8
 
-        private val rectangleBuilder: ShapeBuilder = { b ->
-            listOf( Rectangle( b.minX, b.minY, b.width, b.height ))
-        }
-        private val ovalBuilder: ShapeBuilder = { b ->
-            listOf(Ellipse(b.centerX, b.centerY, b.width / 2, b.height / 2))
+        // common shapes
+        fun rectangle(bounds:Bounds,context: CanvasContext) = Shape(
+            name = "Rectangle",
+            bounds = bounds,
+            context = context) {
+            listOf( Rectangle( it.minX, it.minY, it.width, it.height ))
         }
 
-        // common shapes
-        fun rectangle(bounds:Bounds,context: CanvasContext) = Shape( name = "Rectangle", bounds = bounds, buildShape = rectangleBuilder, context = context)
-        fun oval(bounds:Bounds,context: CanvasContext)      = Shape( name = "Oval", bounds = bounds, buildShape = ovalBuilder, context = context)
+        fun oval(bounds:Bounds,context: CanvasContext)      = Shape(
+            name = "Oval",
+            bounds = bounds,
+            context = context ) {
+            listOf(Ellipse(it.centerX, it.centerY, it.width / 2, it.height / 2))
+        }
+
 
         // support shapes
-
         fun hover( source: Shape): Node {
             return source.makeCopy { s ->
                 s.fill = highlightFill
@@ -86,6 +86,13 @@ data class Shape(
                 stroke = selectionBandStroke
                 strokeWidth = 1 / context.scale
                 isMouseTransparent = true
+            }
+        }
+
+        fun basicShape( shapeType: BasicShapeType, bounds: Bounds, context: CanvasContext): Shape {
+            return when(shapeType) {
+                BasicShapeType.RECTANGLE -> rectangle(bounds, context)
+                BasicShapeType.OVAL     -> oval(bounds, context)
             }
         }
 
@@ -129,6 +136,7 @@ data class Shape(
         get() = strokeWidthProperty.get()
         set(value) = strokeWidthProperty.set(value)
 
+    // shape dragging
     private val dragSupport = object: MouseDragSupport(this, context) {
         override fun onDrag(temp: Boolean ){
             val delta = if (temp) currentDelta() else totalDelta()
@@ -142,14 +150,10 @@ data class Shape(
 
         sceneProperty().addListener { _, _, newScene ->
             if (newScene != null) {
-                addEventHandler(MouseEvent.MOUSE_ENTERED, ::mouseEnterHandler)
-                addEventHandler(MouseEvent.MOUSE_EXITED,  ::mouseExitHandler)
-                addEventHandler(MouseEvent.MOUSE_PRESSED, ::mousePressHandler)
+                addEventHandler(MouseEvent.ANY, ::mouseEventHandler)
                 dragSupport.enable()
             } else {
-                removeEventHandler(MouseEvent.MOUSE_ENTERED,  ::mouseEnterHandler)
-                removeEventHandler(MouseEvent.MOUSE_EXITED,   ::mouseExitHandler)
-                removeEventHandler(MouseEvent.MOUSE_RELEASED, ::mousePressHandler)
+                removeEventHandler(MouseEvent.ANY, ::mouseEventHandler)
                 dragSupport.disable()
             }
         }
@@ -162,7 +166,12 @@ data class Shape(
     }
 
     fun makeCopy( update: (Shape) -> Unit = { _ -> } ): Shape {
-        return Shape( name = "copy", bounds = boundsInParent, buildShape = buildShape, context = context).apply {
+        return Shape(
+            name = "copy",
+            bounds = boundsInParent,
+            context = context,
+            buildShape = buildShape
+        ).apply {
             update(this)
         }
     }
@@ -176,17 +185,12 @@ data class Shape(
         return node
     }
 
-
-    private fun mouseEnterHandler(event: MouseEvent) {
-        context.eventBus.publish( ShapeHover( this, true ))
-    }
-
-    private fun mouseExitHandler(event: MouseEvent) {
-        context.eventBus.publish( ShapeHover( this, false ))
-    }
-
-    private fun mousePressHandler(event: MouseEvent) {
-        context.eventBus.publish( SelectionUpdate( this, event.isShiftDown ))
+    private fun mouseEventHandler(event: MouseEvent) {
+        when(event.eventType) {
+            MouseEvent.MOUSE_ENTERED -> context.eventBus.publish(ShapeHover( this, true ))
+            MouseEvent.MOUSE_EXITED  -> context.eventBus.publish(ShapeHover( this, false ))
+            MouseEvent.MOUSE_PRESSED -> context.eventBus.publish(SelectionUpdate( this, event.isShiftDown ))
+        }
     }
 
     private inner class AttrProperty<T>( value: T): SimpleObjectProperty<T>(value) {

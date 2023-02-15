@@ -14,3 +14,4 @@ data class SelectionUpdate(val shape: Shape, val toggle: Boolean): Event
 data class SelectionBounds(val bounds: Bounds): Event
 
 data class SelectionBand(val bounds: Bounds, val on: Boolean ): Event
+data class BasicSelectionShapeAdd(val shape: Shape, val temp: Boolean ): Event
