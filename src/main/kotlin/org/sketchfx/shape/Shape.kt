@@ -1,7 +1,5 @@
 package org.sketchfx.shape
 
-import javafx.beans.property.DoubleProperty
-import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.geometry.Bounds
@@ -17,6 +15,7 @@ import org.sketchfx.event.SelectionUpdate
 import org.sketchfx.event.ShapeHover
 import org.sketchfx.event.ShapeRelocated
 import org.sketchfx.fx.MouseDragSupport
+import org.sketchfx.fx.delegate
 import java.util.*
 
 data class Shape(
@@ -30,8 +29,8 @@ data class Shape(
 
     companion object {
 
-        val defaultFill: Color = Color.DARKGREY
-        val defaultStroke: Color = Color.LIGHTGREY
+        val defaultFill: Color = Color.LIGHTGREY
+        val defaultStroke: Color = Color.DARKGREY
 
         private const val highlight: String = "#0D99FF"
 
@@ -120,21 +119,10 @@ data class Shape(
 
     }
 
-    private val fillColorProperty: ObjectProperty<Paint> =  AttrProperty<Paint>(defaultStroke)
-    var fill : Paint
-        get() = fillColorProperty.get()
-        set(value) = fillColorProperty.set(value)
+    var fill   : Paint by AttrProperty<Paint>(defaultFill).delegate()
+    var stroke : Paint by AttrProperty<Paint>(defaultStroke).delegate()
 
-
-    private val strokeColorProperty: ObjectProperty<Paint> = AttrProperty<Paint>(defaultFill)
-    var stroke : Paint
-        get() = strokeColorProperty.get()
-        set(value) = strokeColorProperty.set(value)
-
-    private val strokeWidthProperty: DoubleProperty = SimpleDoubleProperty(1.0)
-    var strokeWidth : Double
-        get() = strokeWidthProperty.get()
-        set(value) = strokeWidthProperty.set(value)
+    var strokeWidth : Double by SimpleDoubleProperty(1.0).delegate()
 
     // shape dragging
     private val dragSupport = object: MouseDragSupport(this, context) {

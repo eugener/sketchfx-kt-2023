@@ -6,6 +6,7 @@ import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.transform.Transform
 import org.sketchfx.cmd.CmdRelocateShapes
 import org.sketchfx.event.*
+import org.sketchfx.fx.delegate
 import org.sketchfx.infra.CommandManager
 import org.sketchfx.infra.EventBus
 import org.sketchfx.infra.SelectionModel
@@ -25,9 +26,7 @@ abstract class CanvasContext {
     val commandManager: CommandManager = CommandManager()
 
     val mouseDragModeProperty: ObjectProperty<MouseDragMode> = SimpleObjectProperty(MouseDragMode.SELECTION)
-    var mouseDragMode: MouseDragMode
-        get() = mouseDragModeProperty.get()
-        set(value) = mouseDragModeProperty.set(value)
+    var mouseDragMode by mouseDragModeProperty.delegate()
 
     var basicShape = BasicShapeType.RECTANGLE
 
