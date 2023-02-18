@@ -2,6 +2,7 @@ package org.sketchfx.shape
 
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleObjectProperty
+import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Bounds
 import javafx.geometry.Point2D
 import javafx.scene.Group
@@ -20,7 +21,6 @@ import org.sketchfx.fx.delegate
 import java.util.*
 
 data class Shape(
-    val name: String,
     private val bounds: Bounds,
     private val context: CanvasContext,
     private val buildShape: (Bounds) -> Collection<Node>
@@ -47,18 +47,20 @@ data class Shape(
         private const val handleSize: Int = 8
 
         // common shapes
-        fun rectangle(bounds:Bounds,context: CanvasContext) = Shape(
-            name = "Rectangle",
-            bounds = bounds,
-            context = context) {
-            listOf( Rectangle( it.minX, it.minY, it.width, it.height ))
+        fun rectangle(bounds: Bounds, context: CanvasContext): Shape {
+                return Shape(bounds = bounds,context = context){
+                    listOf(Rectangle(it.minX, it.minY, it.width, it.height))
+                }.apply {
+                    name = "Rectangle"
+                }
         }
 
-        fun oval(bounds:Bounds,context: CanvasContext)      = Shape(
-            name = "Oval",
-            bounds = bounds,
-            context = context ) {
-            listOf(Ellipse(it.centerX, it.centerY, it.width / 2, it.height / 2))
+        fun oval(bounds:Bounds,context: CanvasContext): Shape {
+            return Shape( bounds = bounds, context = context ) {
+                listOf(Ellipse(it.centerX, it.centerY, it.width / 2, it.height / 2))
+            }.apply {
+                name = "Oval"
+            }
         }
 
 
@@ -120,6 +122,7 @@ data class Shape(
 
     }
 
+    var name   : String by SimpleStringProperty("").delegate()
     var fill   : Paint by AttrProperty<Paint>(defaultFill).delegate()
     var stroke : Paint by AttrProperty<Paint>(defaultStroke).delegate()
 
@@ -147,20 +150,20 @@ data class Shape(
             }
         }
 
-
     }
 
     override fun toString(): String {
-        return "$name :   $sid"
+       // return "$name :   $sid"
+        return name
     }
 
     fun makeCopy( update: (Shape) -> Unit = { _ -> } ): Shape {
         return Shape(
-            name = "copy",
             bounds = boundsInParent,
             context = context,
             buildShape = buildShape
         ).apply {
+            name = "copy"
             update(this)
         }
     }
