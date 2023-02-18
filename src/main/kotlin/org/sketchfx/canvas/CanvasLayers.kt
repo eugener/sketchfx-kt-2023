@@ -9,6 +9,7 @@ import javafx.scene.control.Label
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Region
 import javafx.scene.transform.Transform
+import org.sketchfx.cmd.CmdAppendShape
 import org.sketchfx.event.*
 import org.sketchfx.fx.MouseDragSupport
 import org.sketchfx.shape.Shape
@@ -163,9 +164,7 @@ class OverlayCanvasLayer(private val context: CanvasContext): CanvasLayer() {
                 bandGroup.children.clear()
             } finally {
                 context.mouseDragMode = MouseDragMode.SELECTION
-                //TODO convert to command
-                context.shapes().add(shape)
-                context.selection.set(shape)
+                context.commandManager.execute(CmdAppendShape(shape, context))
             }
 
         }
