@@ -1,6 +1,6 @@
 package org.sketchfx.infra
 
-interface Command {
-    fun run()
-    fun undo()
+interface Command<T> {
+    fun run(context: T)
+    fun undo(context: T)
 }

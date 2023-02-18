@@ -4,10 +4,10 @@ import javafx.beans.property.ReadOnlyBooleanProperty
 import javafx.beans.property.ReadOnlyBooleanWrapper
 import java.util.*
 
-class CommandManager {
+open class CommandManager<T>( private val context: T ) {
 
-    private val undoStack = Stack<Command>()
-    private val redoStack = Stack<Command>()
+    private val undoStack = Stack<Command<T>>()
+    private val redoStack = Stack<Command<T>>()
 
     private val undoAvailablePropertyWrapper = ReadOnlyBooleanWrapper(undoStack.isNotEmpty())
     val undoAvailableProperty: ReadOnlyBooleanProperty = undoAvailablePropertyWrapper.readOnlyProperty
@@ -20,12 +20,12 @@ class CommandManager {
         redoAvailablePropertyWrapper.set(redoStack.isNotEmpty())
     }
 
-    fun execute(cmd: Command) {
-        cmd.run()
+    fun execute(cmd: Command<T>) {
+        cmd.run(context)
         add(cmd)
     }
 
-    fun add(cmd: Command) {
+    fun add(cmd: Command<T>) {
         undoStack.push(cmd)
         redoStack.clear()
         updateProps()
@@ -34,7 +34,7 @@ class CommandManager {
     fun undo() {
         if (undoStack.isNotEmpty()) {
             val cmd = undoStack.pop()
-            cmd.undo()
+            cmd.undo(context)
             redoStack.push(cmd)
             updateProps()
         }

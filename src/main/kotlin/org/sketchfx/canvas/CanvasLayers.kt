@@ -151,7 +151,6 @@ class OverlayCanvasLayer(private val context: CanvasContext): CanvasLayer() {
 
     private fun showBasicShape(shape: Shape, mousePos: Point2D, temp: Boolean) {
         if (temp) {
-
             with(sizeLabel) {
                 val shapeBounds = shape.boundsInParent
                 text = "%.0f x %.0f".format(shapeBounds.width,shapeBounds.height)
@@ -164,7 +163,7 @@ class OverlayCanvasLayer(private val context: CanvasContext): CanvasLayer() {
                 bandGroup.children.clear()
             } finally {
                 context.mouseDragMode = MouseDragMode.SELECTION
-                context.commandManager.execute(CmdAppendShape(shape, context))
+                context.commandManager.execute(CmdAppendShape(shape))
             }
 
         }

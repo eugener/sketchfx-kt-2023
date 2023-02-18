@@ -23,7 +23,7 @@ abstract class CanvasContext {
     val selection: SelectionModel<Shape> = SelectionModel<Shape>().apply {
         onChange{ fireSelectionChange()}
     }
-    val commandManager: CommandManager = CommandManager()
+    val commandManager: CommandManager<CanvasContext> = CommandManager(this)
 
     val mouseDragModeProperty: ObjectProperty<MouseDragMode> = SimpleObjectProperty(MouseDragMode.SELECTION)
     var mouseDragMode by mouseDragModeProperty.delegate()
@@ -60,9 +60,9 @@ abstract class CanvasContext {
     }
 
     private fun shapeRelocatedHandler(e: ShapeRelocated) {
-        val cmd = CmdRelocateShapes(selection.items(), e.dx, e.dy, this)
+        val cmd = CmdRelocateShapes(selection.items(), e.dx, e.dy)
         if (e.temp) {
-            cmd.run()
+            cmd.run(this)
         } else {
             commandManager.add(cmd)
         }
