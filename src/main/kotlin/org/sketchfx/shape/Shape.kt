@@ -3,6 +3,7 @@ package org.sketchfx.shape
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.geometry.Bounds
+import javafx.geometry.Point2D
 import javafx.scene.Group
 import javafx.scene.Node
 import javafx.scene.input.MouseEvent
@@ -126,7 +127,7 @@ data class Shape(
 
     // shape dragging
     private val dragSupport = object: MouseDragSupport(this, context) {
-        override fun onDrag(temp: Boolean ){
+        override fun onDrag(mousePosition: Point2D, temp: Boolean) {
             val delta = if (temp) currentDelta() else totalDelta()
             context.eventBus.publish(ShapeRelocated( this@Shape, delta.x, delta.y, temp))
         }
