@@ -3,7 +3,9 @@ package org.sketchfx.canvas
 import javafx.collections.ObservableList
 import javafx.event.EventHandler
 import javafx.geometry.Bounds
+import javafx.geometry.Point2D
 import javafx.scene.Group
+import javafx.scene.control.Label
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Region
 import javafx.scene.transform.Transform
@@ -47,7 +49,7 @@ class CatchAllLayer(context: CanvasContext): CanvasLayer() {
 
     private val dragSupport = object: MouseDragSupport(this, context) {
 
-        override fun onDrag(temp: Boolean) {
+        override fun onDrag(mousePosition: Point2D, temp: Boolean) {
 
             when (context.mouseDragMode) {
                 MouseDragMode.SELECTION -> {
@@ -60,7 +62,7 @@ class CatchAllLayer(context: CanvasContext): CanvasLayer() {
                         // temp shape has to be mouse-transparent for selection to work properly
                         isMouseTransparent = temp
                     }
-                    val event = BasicSelectionShapeAdd(shape, temp)
+                    val event = BasicSelectionShapeAdd(shape, mousePosition, temp,)
                     context.eventBus.publish(event)
                 }
             }
@@ -105,6 +107,11 @@ class OverlayCanvasLayer(private val context: CanvasContext): CanvasLayer() {
     private val selectionGroup = Group()
     private val bandGroup = Group()
 
+    private val sizeLabel = Label().apply {
+        styleClass.add("shape-size-label")
+        isMouseTransparent = true
+    }
+
     init {
         group.children.addAll(hoverGroup, selectionGroup, bandGroup)
         sceneProperty().addListener { _, _, newScene ->
@@ -138,20 +145,25 @@ class OverlayCanvasLayer(private val context: CanvasContext): CanvasLayer() {
     }
 
     private fun basicShapeAddHandler( e: BasicSelectionShapeAdd) {
-        showBasicShape(e.shape, e.temp)
+        showBasicShape(e.shape, e.mousePosition, e.temp)
     }
 
-    private fun showBasicShape(shape: Shape, temp: Boolean) {
+    private fun showBasicShape(shape: Shape, mousePos: Point2D, temp: Boolean) {
         if (temp) {
-            bandGroup.children.setAll(shape)
-//            val b = shape.boundsInParent
-//            bandGroup.children.setAll(Rectangle(b.minX, b.minY, b.width, b.height))
-//            bandGroup.children.setAll(Shape.hover(shape))
+
+            with(sizeLabel) {
+                val shapeBounds = shape.boundsInParent
+                text = "%.0f x %.0f".format(shapeBounds.width,shapeBounds.height)
+                layoutX = mousePos.x + 5
+                layoutY = mousePos.y + 5
+            }
+            bandGroup.children.setAll(shape, sizeLabel)
         } else {
             try {
                 bandGroup.children.clear()
             } finally {
                 context.mouseDragMode = MouseDragMode.SELECTION
+                //TODO convert to command
                 context.shapes().add(shape)
                 context.selection.set(shape)
             }

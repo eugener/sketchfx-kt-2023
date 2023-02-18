@@ -36,8 +36,9 @@ abstract class MouseDragSupport( private val base: Node, private val context: Ca
 
             MouseEvent.MOUSE_DRAGGED -> {
                 startPos?.let {
-                    nextPos = getPos(e)
-                    onDrag(true)
+                    val pos = getPos(e)
+                    nextPos = pos
+                    onDrag(pos,true)
                     prevPos = nextPos
                     e.consume()
                 }
@@ -45,8 +46,9 @@ abstract class MouseDragSupport( private val base: Node, private val context: Ca
 
             MouseEvent.MOUSE_RELEASED -> {
                 startPos?.let {
-                    nextPos = getPos(e)
-                    onDrag(false)
+                    val pos = getPos(e)
+                    nextPos = pos
+                    onDrag(pos,false)
                     prevPos = nextPos
                     e.consume()
                 }
@@ -84,7 +86,7 @@ abstract class MouseDragSupport( private val base: Node, private val context: Ca
      * Override this method to handle mouse drag events
      * @param temp    is true if the drag is not yet finished
      */
-    abstract fun onDrag( temp: Boolean )
+    abstract fun onDrag( mousePosition: Point2D, temp: Boolean )
 
     /**
      * Override this method to handle mouse drag start event

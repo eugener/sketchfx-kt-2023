@@ -71,3 +71,11 @@
     -fx-font-size: 13;
 }
 
+.shape-size-label {
+    -fx-font-size: 12;
+    -fx-background-color: -fx-accent;
+    -fx-text-fill: white;
+    -fx-padding: 3 7 3 7;
+    -fx-background-radius: 5;
+}
+
