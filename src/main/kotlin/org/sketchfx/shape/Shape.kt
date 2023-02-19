@@ -12,9 +12,8 @@ import javafx.scene.paint.Color
 import javafx.scene.paint.Paint
 import javafx.scene.shape.Ellipse
 import javafx.scene.shape.Rectangle
-import org.sketchfx.canvas.CanvasContext
+import org.sketchfx.canvas.CanvasViewModel
 import org.sketchfx.event.SelectionUpdate
-import org.sketchfx.event.ShapeHover
 import org.sketchfx.event.ShapeRelocated
 import org.sketchfx.fx.MouseDragSupport
 import org.sketchfx.fx.delegate
@@ -22,7 +21,7 @@ import java.util.*
 
 data class Shape(
     private val bounds: Bounds,
-    private val context: CanvasContext,
+    private val context: CanvasViewModel,
     private val buildShape: (Bounds) -> Collection<Node>
     ): Group() {
 
@@ -47,7 +46,7 @@ data class Shape(
         private const val handleSize: Int = 8
 
         // common shapes
-        fun rectangle(bounds: Bounds, context: CanvasContext): Shape {
+        fun rectangle(bounds: Bounds, context: CanvasViewModel): Shape {
                 return Shape(bounds = bounds,context = context){
                     listOf(Rectangle(it.minX, it.minY, it.width, it.height))
                 }.apply {
@@ -55,7 +54,7 @@ data class Shape(
                 }
         }
 
-        fun oval(bounds:Bounds,context: CanvasContext): Shape {
+        fun oval(bounds:Bounds,context: CanvasViewModel): Shape {
             return Shape( bounds = bounds, context = context ) {
                 listOf(Ellipse(it.centerX, it.centerY, it.width / 2, it.height / 2))
             }.apply {
@@ -82,7 +81,7 @@ data class Shape(
             }
         }
 
-        fun selectionBand(bounds: Bounds, context: CanvasContext): Node {
+        fun selectionBand(bounds: Bounds, context: CanvasViewModel): Node {
             return Rectangle(bounds.minX, bounds.minY, bounds.width, bounds.height).apply {
                 fill = selectionBandFill
                 stroke = selectionBandStroke
@@ -91,14 +90,14 @@ data class Shape(
             }
         }
 
-        fun basicShape( shapeType: BasicShapeType, bounds: Bounds, context: CanvasContext): Shape {
+        fun basicShape( shapeType: BasicShapeType, bounds: Bounds, context: CanvasViewModel): Shape {
             return when(shapeType) {
                 BasicShapeType.RECTANGLE -> rectangle(bounds, context)
                 BasicShapeType.OVAL     -> oval(bounds, context)
             }
         }
 
-        fun selectionBounds( bounds: Bounds, context: CanvasContext): Node {
+        fun selectionBounds( bounds: Bounds, context: CanvasViewModel): Node {
             return Rectangle( bounds.minX, bounds.minY, bounds.width, bounds.height ).apply {
                 fill = selectionFill
                 stroke = selectionStroke
@@ -107,7 +106,7 @@ data class Shape(
             }
         }
 
-        fun selectionHandle(x: Double, y: Double, context: CanvasContext): Node {
+        fun selectionHandle(x: Double, y: Double, context: CanvasViewModel): Node {
 
             val size = handleSize / context.scale
             val offset = size / 2
@@ -178,8 +177,8 @@ data class Shape(
 
     private fun mouseEventHandler(event: MouseEvent) {
         when(event.eventType) {
-            MouseEvent.MOUSE_ENTERED -> context.eventBus.publish(ShapeHover( this, true ))
-            MouseEvent.MOUSE_EXITED  -> context.eventBus.publish(ShapeHover( this, false ))
+            MouseEvent.MOUSE_ENTERED -> context.shapeHover = this
+            MouseEvent.MOUSE_EXITED  -> context.shapeHover = null
             MouseEvent.MOUSE_PRESSED -> context.eventBus.publish(SelectionUpdate( this, event.isShiftDown ))
         }
     }

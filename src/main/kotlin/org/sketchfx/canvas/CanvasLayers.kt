@@ -1,5 +1,6 @@
 package org.sketchfx.canvas
 
+import javafx.beans.value.ChangeListener
 import javafx.collections.ObservableList
 import javafx.event.EventHandler
 import javafx.geometry.Bounds
@@ -46,7 +47,7 @@ enum class MouseDragMode {
     BASIC_SHAPE_ADD
 }
 
-class CatchAllLayer(context: CanvasContext): CanvasLayer() {
+class CatchAllLayer(private val context: CanvasViewModel): CanvasLayer() {
 
     private val dragSupport = object: MouseDragSupport(this, context) {
 
@@ -102,7 +103,7 @@ class CatchAllLayer(context: CanvasContext): CanvasLayer() {
 
 }
 
-class OverlayCanvasLayer(private val context: CanvasContext): CanvasLayer() {
+class OverlayCanvasLayer(private val context: CanvasViewModel): CanvasLayer() {
 
     private val hoverGroup = Group()
     private val selectionGroup = Group()
@@ -117,13 +118,13 @@ class OverlayCanvasLayer(private val context: CanvasContext): CanvasLayer() {
         group.children.addAll(hoverGroup, selectionGroup, bandGroup)
         sceneProperty().addListener { _, _, newScene ->
             if (newScene != null) {
-                context.eventBus.subscribe(::shapeHoverHandler)
+                context.shapeHoverProperty.addListener(shapeHoverHandler)
                 context.eventBus.subscribe(::selectionChangeHandler)
                 context.eventBus.subscribe(::selectionRelocatedHandler)
                 context.eventBus.subscribe(::selectionBandHandler)
                 context.eventBus.subscribe(::basicShapeAddHandler)
             } else {
-                context.eventBus.unsubscribe(::shapeHoverHandler)
+                context.shapeHoverProperty.removeListener(shapeHoverHandler)
                 context.eventBus.unsubscribe(::selectionChangeHandler)
                 context.eventBus.unsubscribe(::selectionRelocatedHandler)
                 context.eventBus.unsubscribe(::selectionBandHandler)
@@ -132,12 +133,13 @@ class OverlayCanvasLayer(private val context: CanvasContext): CanvasLayer() {
         }
     }
 
-    private fun shapeHoverHandler(e: ShapeHover) {
-        if (!e.on) {
+    private val shapeHoverHandler: ChangeListener<Shape?> = ChangeListener { _, _, shape ->
+        if (shape != null) {
+            if (!context.selection.contains(shape)) {
+                showHover(shape)
+            }
+        } else {
             hideHover()
-
-        } else if (!context.selection.contains(e.base)) {
-            showHover(e.base)
         }
     }
 

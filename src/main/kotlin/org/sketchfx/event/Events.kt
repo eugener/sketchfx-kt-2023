@@ -6,7 +6,6 @@ import javafx.geometry.Point2D
 import org.sketchfx.shape.Shape
 
 
-data class ShapeHover( val base: Shape, val on: Boolean): Event
 data class ShapeRelocated(val shape: Shape, val dx: Double, val dy: Double, val temp: Boolean): Event
 
 data class SelectionChanged( val selection: Collection<Shape>): Event

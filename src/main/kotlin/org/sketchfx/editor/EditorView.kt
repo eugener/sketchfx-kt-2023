@@ -6,11 +6,9 @@ import javafx.geometry.BoundingBox
 import javafx.scene.control.*
 import javafx.scene.layout.BorderPane
 import javafx.util.Callback
-import org.sketchfx.canvas.CanvasContext
 import org.sketchfx.canvas.CanvasModel
 import org.sketchfx.canvas.CanvasView
 import org.sketchfx.canvas.CanvasViewModel
-import org.sketchfx.event.ShapeHover
 import org.sketchfx.fx.MultipleSelectionModelExt.bindBidirectional
 import org.sketchfx.fx.MultipleSelectionModelExt.unbindBidirectional
 import org.sketchfx.fx.StringListCell
@@ -104,7 +102,7 @@ class EditorView( private val viewModel: EditorViewModel) : BorderPane() {
             val cell = this@ShapeListCell
             this.hoverProperty().addListener{ _, _: Boolean?, isNowHovered: Boolean ->
                 if (!cell.isEmpty) {
-                    context.eventBus.publish(ShapeHover(cell.item, isNowHovered))
+                    context.shapeHover = if (isNowHovered) cell.item else null
                 }
             }
         }
@@ -127,9 +125,9 @@ class EditorViewModel(model: CanvasModel): CanvasViewModel(model) {
 
 }
 
-private fun rect(x: Double, y: Double, ctx: CanvasContext): Shape =
+private fun rect(x: Double, y: Double, ctx: CanvasViewModel): Shape =
     Shape.rectangle(BoundingBox(Random.nextDouble(100.0) + x, Random.nextDouble(100.0) + y, 100.0, 100.0), ctx)
 
-private fun oval(x: Double, y: Double, ctx: CanvasContext): Shape =
+private fun oval(x: Double, y: Double, ctx: CanvasViewModel): Shape =
     Shape.oval(BoundingBox(Random.nextDouble(100.0) + x, Random.nextDouble(100.0) + y, 200.0, 100.0), ctx)
 

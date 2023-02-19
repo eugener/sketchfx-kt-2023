@@ -8,18 +8,21 @@ import javafx.geometry.Bounds
 import javafx.scene.transform.Scale
 import javafx.scene.transform.Transform
 import javafx.scene.transform.Translate
+import org.sketchfx.fx.delegate
 import org.sketchfx.shape.Shape
 
 open class CanvasViewModel(private val model: CanvasModel): CanvasContext() {
 
     override fun shapes(): ObservableList<Shape> = model.shapes
 
-
+    // represents the current transform of the canvas
     val transformProperty: ObjectProperty<Transform> = SimpleObjectProperty(buildTransform()).apply {
         val transformBinding = Bindings.createObjectBinding( ::buildTransform, model.scaleProperty, model.translateProperty)
         bind(transformBinding)
         //TODO unbind
     }
+
+    // represents the bounds of the canvas in parent coordinates
     val boundsInParentProperty: ObjectProperty<Bounds> = SimpleObjectProperty()
 
     private fun buildTransform(): Transform {
@@ -28,7 +31,7 @@ open class CanvasViewModel(private val model: CanvasModel): CanvasContext() {
 
     override val transform: Transform
         get() = transformProperty.get()
- 
+
     override var scale: Double
         get() = model.scaleProperty.get().x
         set(newScale) {
@@ -46,5 +49,9 @@ open class CanvasViewModel(private val model: CanvasModel): CanvasContext() {
         set(newTranslate) {
             model.translateProperty.set(Translate(newTranslate.first, newTranslate.second))
         }
+
+
+    val shapeHoverProperty: ObjectProperty<Shape?> = SimpleObjectProperty()
+    var shapeHover by shapeHoverProperty.delegate()
 
 }

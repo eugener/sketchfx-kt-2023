@@ -1,12 +1,12 @@
 package org.sketchfx.shape
 
-import org.sketchfx.canvas.CanvasContext
 import javafx.geometry.Bounds
 import javafx.scene.Group
 import javafx.scene.Node
+import org.sketchfx.canvas.CanvasViewModel
 import org.sketchfx.fx.BoundsExt.union
 
-class SelectionBox(selection: Collection<Shape>, context: CanvasContext): Group() {
+class SelectionBox(selection: Collection<Shape>, context: CanvasViewModel): Group() {
 
     init {
 
