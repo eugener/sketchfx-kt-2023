@@ -14,7 +14,6 @@ import javafx.scene.shape.Ellipse
 import javafx.scene.shape.Rectangle
 import org.sketchfx.canvas.CanvasViewModel
 import org.sketchfx.event.SelectionUpdate
-import org.sketchfx.event.ShapeRelocated
 import org.sketchfx.fx.MouseDragSupport
 import org.sketchfx.fx.delegate
 import java.util.*
@@ -130,7 +129,7 @@ data class Shape(
     private val dragSupport = object: MouseDragSupport(this, context) {
         override fun onDrag(mousePosition: Point2D, temp: Boolean) {
             val delta = if (temp) currentDelta() else totalDelta()
-            context.eventBus.publish(ShapeRelocated( this@Shape, delta.x, delta.y, temp))
+            context.shapeRelocated( this@Shape, delta.x, delta.y, temp)
         }
     }
 

@@ -5,7 +5,10 @@ import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.transform.Transform
 import org.sketchfx.cmd.CmdRelocateShapes
-import org.sketchfx.event.*
+import org.sketchfx.event.SelectionBounds
+import org.sketchfx.event.SelectionChanged
+import org.sketchfx.event.SelectionRelocated
+import org.sketchfx.event.SelectionUpdate
 import org.sketchfx.fx.delegate
 import org.sketchfx.infra.CommandManager
 import org.sketchfx.infra.EventBus
@@ -17,7 +20,6 @@ abstract class CanvasContext {
 
     val eventBus: EventBus = EventBus().apply {
         subscribe(::selectionAddHandler)
-        subscribe(::shapeRelocatedHandler)
         subscribe(::selectionBoundsHandler)
     }
     val selection: SelectionModel<Shape> = SelectionModel<Shape>().apply {
@@ -59,14 +61,15 @@ abstract class CanvasContext {
         }
     }
 
-    private fun shapeRelocatedHandler(e: ShapeRelocated) {
-        val cmd = CmdRelocateShapes(selection.items(), e.dx, e.dy)
-        if (e.temp) {
+    fun shapeRelocated( shape: Shape, dx: Double, dy: Double, temp: Boolean) {
+        val cmd = CmdRelocateShapes(selection.items(), dx, dy)
+        if (temp) {
             cmd.run(this)
         } else {
             commandManager.add(cmd)
         }
     }
+
 
 
 }
