@@ -4,6 +4,7 @@ import javafx.beans.InvalidationListener
 import javafx.beans.binding.Bindings
 import javafx.geometry.BoundingBox
 import javafx.scene.control.*
+import javafx.scene.input.KeyCombination
 import javafx.scene.layout.BorderPane
 import javafx.util.Callback
 import org.sketchfx.canvas.CanvasModel
@@ -11,6 +12,7 @@ import org.sketchfx.canvas.CanvasView
 import org.sketchfx.canvas.CanvasViewModel
 import org.sketchfx.fx.MultipleSelectionModelExt.bindBidirectional
 import org.sketchfx.fx.MultipleSelectionModelExt.unbindBidirectional
+import org.sketchfx.fx.Spacer
 import org.sketchfx.fx.StringListCell
 import org.sketchfx.shape.BasicShapeType
 import org.sketchfx.shape.Shape
@@ -23,23 +25,40 @@ class EditorView( private val viewModel: EditorViewModel) : BorderPane() {
         styleClass.setAll("status-bar")
     }
 
-    private val canvasToolBar = ToolBar().apply {
-        minHeight = 40.0
+    private val zoomMenu = MenuButton("Zoom").apply {
         items.setAll(
+            MenuItem("Zoom In").apply {
+                setOnAction { canvasView.context.scale *= 2 }
+                accelerator = KeyCombination.keyCombination("meta+PLUS")
+          },
+            MenuItem("Zoom Out").apply {
+                setOnAction { canvasView.context.scale /= 2 }
+                accelerator = KeyCombination.keyCombination("meta+MINUS")
+            },
+        )
+    }
+
+    private val canvasToolBarLeft = ToolBar().apply {
+        items.setAll(
+            Spacer.horizontal(),
             MenuButton("Shape").apply {
                 BasicShapeType.values().forEach { shape ->
                     items.add(MenuItem(shape.title()).apply {
                         setOnAction { canvasView.addBasicShape(shape) }
                     })
                 }
-            },
+            }
+        )
+    }
+
+    private val canvasToolBarRight = ToolBar().apply {
+        items.setAll(
+            Spacer.horizontal(),
+            zoomMenu
         )
     }
     private val canvasView = CanvasView(viewModel)
 
-    private val shapeListToolBar = ToolBar().apply {
-        minHeight = 40.0
-    }
     private val shapeListView = ListView<Shape>().apply {
         cellFactory = Callback{ShapeListCell()}
         selectionModel.selectionMode = SelectionMode.MULTIPLE
@@ -56,8 +75,8 @@ class EditorView( private val viewModel: EditorViewModel) : BorderPane() {
         center = SplitPane().apply {
             setDividerPositions(.2)
             items.setAll(
-                BorderPane(shapeListView, shapeListToolBar, null, null, null),
-                BorderPane(canvasView, canvasToolBar,null, null, null),
+                BorderPane(shapeListView, canvasToolBarLeft, null, null, null),
+                BorderPane(canvasView, canvasToolBarRight,null, null, null),
             )
         }
         bottom = status
@@ -83,6 +102,8 @@ class EditorView( private val viewModel: EditorViewModel) : BorderPane() {
     private fun updateStatus() {
         canvasView.context.transformProperty.get()?.run {
             status.text = "scale: %.2f; translate: (%.2f : %.2f)".format(mxx, tx, ty)
+            zoomMenu.text= "%.0f%%".format(mxx * 100)
+
         }
 
     }
