@@ -128,7 +128,7 @@ data class Shape(
     private val dragSupport = object: MouseDragSupport(this, context) {
         override fun onDrag(mousePosition: Point2D, temp: Boolean) {
             val delta = if (temp) currentDelta() else totalDelta()
-            context.shapeRelocated( this@Shape, delta.x, delta.y, temp)
+            context.relocateSelection( this@Shape, delta.x, delta.y, temp)
         }
     }
 
@@ -177,7 +177,7 @@ data class Shape(
         when(event.eventType) {
             MouseEvent.MOUSE_ENTERED -> context.shapeHover = this
             MouseEvent.MOUSE_EXITED  -> context.shapeHover = null
-            MouseEvent.MOUSE_PRESSED -> context.selectionUpdate(this, event.isShiftDown )
+            MouseEvent.MOUSE_PRESSED -> context.updateSelection(this, event.isShiftDown )
         }
     }
 

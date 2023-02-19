@@ -192,7 +192,7 @@ class OverlayCanvasLayer(private val context: CanvasViewModel): CanvasLayer() {
     private fun showBand(bounds: Bounds, on: Boolean ) {
         if (on) {
             bandGroup.children.setAll(Shape.selectionBand(bounds, context))
-            context.eventBus.publish(SelectionBounds(bounds))
+            context.updateSelection(bounds)
         } else {
             bandGroup.children.clear()
         }

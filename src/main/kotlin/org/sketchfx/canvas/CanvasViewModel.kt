@@ -9,7 +9,6 @@ import javafx.scene.transform.Scale
 import javafx.scene.transform.Transform
 import javafx.scene.transform.Translate
 import org.sketchfx.cmd.CmdRelocateShapes
-import org.sketchfx.event.SelectionBounds
 import org.sketchfx.fx.delegate
 import org.sketchfx.infra.CommandManager
 import org.sketchfx.infra.EventBus
@@ -19,9 +18,7 @@ import org.sketchfx.shape.Shape
 
 open class CanvasViewModel(private val model: CanvasModel) {
 
-    val eventBus: EventBus = EventBus().apply {
-        subscribe(::selectionBoundsHandler)
-    }
+    val eventBus: EventBus = EventBus()
     val selection = SelectionModel<Shape> { s ->
         arrayOf(
             s.boundsInParentProperty(), // update selection band on selected shape bounds change
@@ -37,12 +34,12 @@ open class CanvasViewModel(private val model: CanvasModel) {
     var basicShape = BasicShapeType.RECTANGLE
 
 
-    private fun selectionBoundsHandler(e: SelectionBounds) {
-        val selectedShapes = shapes().parallelStream().filter{it.boundsInParent.intersects(e.bounds)}
+    fun updateSelection(bounds: Bounds) {
+        val selectedShapes = shapes().parallelStream().filter{it.boundsInParent.intersects(bounds)}
         selection.set(*selectedShapes.toList().toTypedArray())
     }
 
-    fun selectionUpdate(shape: Shape, toggle: Boolean) {
+    fun updateSelection(shape: Shape, toggle: Boolean) {
         if (!toggle) {
             if (!selection.contains(shape)) {
                 selection.set(shape)
@@ -52,7 +49,7 @@ open class CanvasViewModel(private val model: CanvasModel) {
         }
     }
 
-    fun shapeRelocated( shape: Shape, dx: Double, dy: Double, temp: Boolean) {
+    fun relocateSelection(source: Shape, dx: Double, dy: Double, temp: Boolean) {
         val cmd = CmdRelocateShapes(selection.items(), dx, dy)
         if (temp) {
             cmd.run(this)
