@@ -1,6 +1,5 @@
 package org.sketchfx.infra
 
-import javafx.beans.InvalidationListener
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 
@@ -29,14 +28,6 @@ class SelectionModel<T> {
     }
 
     fun contains(item: T): Boolean = selection.contains(item)
-
-    fun onChange(action: (Collection<T>) -> Unit) {
-        selection.addListener( InvalidationListener {
-            if (!suppressChangeEvents) {
-                action(selection)
-            }
-        })
-    }
 
 
 //    private fun <A> withChangeSuppression(block: () -> A): A {

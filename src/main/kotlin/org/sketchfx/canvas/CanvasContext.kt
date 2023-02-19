@@ -6,7 +6,6 @@ import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.transform.Transform
 import org.sketchfx.cmd.CmdRelocateShapes
 import org.sketchfx.event.SelectionBounds
-import org.sketchfx.event.SelectionChanged
 import org.sketchfx.event.SelectionRelocated
 import org.sketchfx.event.SelectionUpdate
 import org.sketchfx.fx.delegate
@@ -22,9 +21,7 @@ abstract class CanvasContext {
         subscribe(::selectionAddHandler)
         subscribe(::selectionBoundsHandler)
     }
-    val selection: SelectionModel<Shape> = SelectionModel<Shape>().apply {
-        onChange{ fireSelectionChange()}
-    }
+    val selection = SelectionModel<Shape>()
     val commandManager: CommandManager<CanvasContext> = CommandManager(this)
 
     val mouseDragModeProperty: ObjectProperty<MouseDragMode> = SimpleObjectProperty(MouseDragMode.SELECTION)
@@ -38,9 +35,6 @@ abstract class CanvasContext {
 
     abstract fun shapes(): MutableList<Shape>
 
-    fun fireSelectionChange() {
-        eventBus.publish(SelectionChanged(selection.items()))
-    }
 
     fun fireSelectionRelocated() {
         eventBus.publish(SelectionRelocated(selection.items()))

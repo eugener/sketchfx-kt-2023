@@ -5,7 +5,6 @@ import javafx.geometry.Bounds
 import javafx.geometry.Point2D
 import org.sketchfx.shape.Shape
 
-data class SelectionChanged( val selection: Collection<Shape>): Event
 data class SelectionRelocated(val selection: Collection<Shape>): Event
 data class SelectionUpdate(val shape: Shape, val toggle: Boolean): Event
 data class SelectionBounds(val bounds: Bounds): Event

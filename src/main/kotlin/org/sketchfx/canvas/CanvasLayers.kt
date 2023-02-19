@@ -1,5 +1,6 @@
 package org.sketchfx.canvas
 
+import javafx.beans.InvalidationListener
 import javafx.beans.value.ChangeListener
 import javafx.collections.ObservableList
 import javafx.event.EventHandler
@@ -119,13 +120,13 @@ class OverlayCanvasLayer(private val context: CanvasViewModel): CanvasLayer() {
         sceneProperty().addListener { _, _, newScene ->
             if (newScene != null) {
                 context.shapeHoverProperty.addListener(shapeHoverHandler)
-                context.eventBus.subscribe(::selectionChangeHandler)
+                context.selection.items().addListener(selectionChangeHandler)
                 context.eventBus.subscribe(::selectionRelocatedHandler)
                 context.eventBus.subscribe(::selectionBandHandler)
                 context.eventBus.subscribe(::basicShapeAddHandler)
             } else {
                 context.shapeHoverProperty.removeListener(shapeHoverHandler)
-                context.eventBus.unsubscribe(::selectionChangeHandler)
+                context.selection.items().removeListener(selectionChangeHandler)
                 context.eventBus.unsubscribe(::selectionRelocatedHandler)
                 context.eventBus.unsubscribe(::selectionBandHandler)
                 context.eventBus.unsubscribe(::basicShapeAddHandler)
@@ -141,6 +142,9 @@ class OverlayCanvasLayer(private val context: CanvasViewModel): CanvasLayer() {
         } else {
             hideHover()
         }
+    }
+    private val selectionChangeHandler = InvalidationListener {
+        showSelection(context.selection.items())
     }
 
     private fun selectionBandHandler( e: SelectionBand) {
@@ -171,9 +175,6 @@ class OverlayCanvasLayer(private val context: CanvasViewModel): CanvasLayer() {
         }
     }
 
-    private fun selectionChangeHandler(e: SelectionChanged) {
-        showSelection(e.selection)
-    }
 
     private fun selectionRelocatedHandler(e: SelectionRelocated) {
         showSelection(e.selection)
