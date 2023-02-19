@@ -4,7 +4,6 @@ import javafx.beans.InvalidationListener
 import javafx.beans.value.ChangeListener
 import javafx.collections.ObservableList
 import javafx.event.EventHandler
-import javafx.geometry.Bounds
 import javafx.geometry.Point2D
 import javafx.scene.Group
 import javafx.scene.control.Label
@@ -12,7 +11,7 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Region
 import javafx.scene.transform.Transform
 import org.sketchfx.cmd.CmdAppendShape
-import org.sketchfx.event.*
+import org.sketchfx.event.BasicSelectionShapeAdd
 import org.sketchfx.shape.Shape
 import org.sketchfx.shape.SelectionBox as SelectionBoxShape
 
@@ -55,16 +54,15 @@ class CatchAllLayer(private val context: CanvasViewModel): CanvasLayer() {
 
             when (context.mouseDragMode) {
                 MouseDragMode.SELECTION -> {
-                    val event = SelectionBand(currentBounds(), temp)
-                    context.eventBus.publish(event)
+                    context.selectionBand = if (temp) currentBounds() else null
                 }
 
                 MouseDragMode.BASIC_SHAPE_ADD -> {
-                    val shape = Shape.basicShape(context.basicShape, currentBounds(), context).apply {
+                    val shape = Shape.basicShape(context.basicShapeToAdd, currentBounds(), context).apply {
                         // temp shape has to be mouse-transparent for selection to work properly
                         isMouseTransparent = temp
                     }
-                    val event = BasicSelectionShapeAdd(shape, mousePosition, temp,)
+                    val event = BasicSelectionShapeAdd(shape, mousePosition, temp)
                     context.eventBus.publish(event)
                 }
             }
@@ -118,16 +116,25 @@ class OverlayCanvasLayer(private val context: CanvasViewModel): CanvasLayer() {
         group.children.addAll(hoverGroup, selectionGroup, bandGroup)
         sceneProperty().addListener { _, _, newScene ->
             if (newScene != null) {
-                context.shapeHoverProperty.addListener(shapeHoverHandler)
+                context.hoveredShapeProperty.addListener(shapeHoverHandler)
                 context.selection.items().addListener(selectionChangeHandler)
-                context.eventBus.subscribe(::selectionBandHandler)
+                context.selectionBandProperty.addListener(selectionBandHandler)
                 context.eventBus.subscribe(::basicShapeAddHandler)
             } else {
-                context.shapeHoverProperty.removeListener(shapeHoverHandler)
+                context.hoveredShapeProperty.removeListener(shapeHoverHandler)
                 context.selection.items().removeListener(selectionChangeHandler)
-                context.eventBus.unsubscribe(::selectionBandHandler)
+                context.selectionBandProperty.removeListener(selectionBandHandler)
                 context.eventBus.unsubscribe(::basicShapeAddHandler)
             }
+        }
+    }
+
+    private val selectionBandHandler = ChangeListener{_, _, bounds ->
+        if (bounds != null) {
+            bandGroup.children.setAll(Shape.selectionBand(bounds, context))
+            context.updateSelection(bounds)
+        } else {
+            bandGroup.children.clear()
         }
     }
 
@@ -142,10 +149,6 @@ class OverlayCanvasLayer(private val context: CanvasViewModel): CanvasLayer() {
     }
     private val selectionChangeHandler = InvalidationListener {
         showSelection(context.selection.items())
-    }
-
-    private fun selectionBandHandler( e: SelectionBand) {
-       showBand(e.bounds, e.on)
     }
 
     private fun basicShapeAddHandler( e: BasicSelectionShapeAdd) {
@@ -186,15 +189,6 @@ class OverlayCanvasLayer(private val context: CanvasViewModel): CanvasLayer() {
         } else {
             hideHover()
             selectionGroup.children.setAll( SelectionBoxShape(selection, context))
-        }
-    }
-
-    private fun showBand(bounds: Bounds, on: Boolean ) {
-        if (on) {
-            bandGroup.children.setAll(Shape.selectionBand(bounds, context))
-            context.updateSelection(bounds)
-        } else {
-            bandGroup.children.clear()
         }
     }
 

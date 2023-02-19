@@ -102,7 +102,7 @@ class EditorView( private val viewModel: EditorViewModel) : BorderPane() {
             val cell = this@ShapeListCell
             this.hoverProperty().addListener{ _, _: Boolean?, isNowHovered: Boolean ->
                 if (!cell.isEmpty) {
-                    context.shapeHover = if (isNowHovered) cell.item else null
+                    context.hoveredShape = if (isNowHovered) cell.item else null
                 }
             }
         }

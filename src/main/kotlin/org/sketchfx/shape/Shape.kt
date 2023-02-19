@@ -175,8 +175,8 @@ data class Shape(
 
     private fun mouseEventHandler(event: MouseEvent) {
         when(event.eventType) {
-            MouseEvent.MOUSE_ENTERED -> context.shapeHover = this
-            MouseEvent.MOUSE_EXITED  -> context.shapeHover = null
+            MouseEvent.MOUSE_ENTERED -> context.hoveredShape = this
+            MouseEvent.MOUSE_EXITED  -> context.hoveredShape = null
             MouseEvent.MOUSE_PRESSED -> context.updateSelection(this, event.isShiftDown )
         }
     }

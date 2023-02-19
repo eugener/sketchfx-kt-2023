@@ -78,7 +78,7 @@ class CanvasView(val context: CanvasViewModel) : StackPane()  {
 
     fun addBasicShape(basicShape: BasicShapeType) {
         context.mouseDragMode = MouseDragMode.BASIC_SHAPE_ADD
-        context.basicShape = basicShape
+        context.basicShapeToAdd = basicShape
     }
 
 

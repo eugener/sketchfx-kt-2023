@@ -31,32 +31,8 @@ open class CanvasViewModel(private val model: CanvasModel) {
     val mouseDragModeProperty: ObjectProperty<MouseDragMode> = SimpleObjectProperty(MouseDragMode.SELECTION)
     var mouseDragMode by mouseDragModeProperty.delegate()
 
-    var basicShape = BasicShapeType.RECTANGLE
+    var basicShapeToAdd = BasicShapeType.RECTANGLE
 
-
-    fun updateSelection(bounds: Bounds) {
-        val selectedShapes = shapes().parallelStream().filter{it.boundsInParent.intersects(bounds)}
-        selection.set(*selectedShapes.toList().toTypedArray())
-    }
-
-    fun updateSelection(shape: Shape, toggle: Boolean) {
-        if (!toggle) {
-            if (!selection.contains(shape)) {
-                selection.set(shape)
-            }
-        } else {
-            selection.toggle(shape)
-        }
-    }
-
-    fun relocateSelection(source: Shape, dx: Double, dy: Double, temp: Boolean) {
-        val cmd = CmdRelocateShapes(selection.items(), dx, dy)
-        if (temp) {
-            cmd.run(this)
-        } else {
-            commandManager.add(cmd)
-        }
-    }
 
     // the list of shapes on the canvas
     fun shapes(): ObservableList<Shape> = model.shapes
@@ -99,9 +75,40 @@ open class CanvasViewModel(private val model: CanvasModel) {
             model.translateProperty.set(Translate(newTranslate.first, newTranslate.second))
         }
 
-
     // the shape that is currently being hovered over
-    val shapeHoverProperty: ObjectProperty<Shape?> = SimpleObjectProperty()
-    var shapeHover by shapeHoverProperty.delegate()
+    val hoveredShapeProperty: ObjectProperty<Shape?> = SimpleObjectProperty()
+    var hoveredShape by hoveredShapeProperty.delegate()
+
+    val selectionBandProperty: ObjectProperty<Bounds?> = SimpleObjectProperty()
+    var selectionBand by selectionBandProperty.delegate()
+
+    // update selection based on the bounds
+    fun updateSelection(bounds: Bounds) {
+        val selectedShapes = shapes().parallelStream().filter{it.boundsInParent.intersects(bounds)}
+        selection.set(*selectedShapes.toList().toTypedArray())
+    }
+
+    // update selection based on the shape adding or toggling
+    fun updateSelection(shape: Shape, toggle: Boolean) {
+        if (!toggle) {
+            if (!selection.contains(shape)) {
+                selection.set(shape)
+            }
+        } else {
+            selection.toggle(shape)
+        }
+    }
+
+    // relocate selection by the given delta
+    fun relocateSelection(source: Shape, dx: Double, dy: Double, temp: Boolean) {
+        val cmd = CmdRelocateShapes(selection.items(), dx, dy)
+        if (temp) {
+            cmd.run(this)
+        } else {
+            commandManager.add(cmd)
+        }
+    }
+
+
 
 }
