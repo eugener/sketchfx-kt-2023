@@ -10,6 +10,7 @@ import org.sketchfx.canvas.CanvasContext
 import org.sketchfx.canvas.CanvasModel
 import org.sketchfx.canvas.CanvasView
 import org.sketchfx.canvas.CanvasViewModel
+import org.sketchfx.event.ShapeHover
 import org.sketchfx.fx.MultipleSelectionModelExt.bindBidirectional
 import org.sketchfx.fx.MultipleSelectionModelExt.unbindBidirectional
 import org.sketchfx.fx.StringListCell
@@ -17,7 +18,7 @@ import org.sketchfx.shape.BasicShapeType
 import org.sketchfx.shape.Shape
 import kotlin.random.Random
 
-class EditorView(viewModel: EditorViewModel) : BorderPane() {
+class EditorView( private val viewModel: EditorViewModel) : BorderPane() {
 
     private val status = Label("").apply {
         prefWidth = Double.MAX_VALUE
@@ -42,9 +43,10 @@ class EditorView(viewModel: EditorViewModel) : BorderPane() {
         minHeight = 40.0
     }
     private val shapeListView = ListView<Shape>().apply {
-        cellFactory = Callback{ StringListCell<Shape>("shape-list-cell") }
+        cellFactory = Callback{ShapeListCell()}
         selectionModel.selectionMode = SelectionMode.MULTIPLE
     }
+
 
     val undoAvailableProperty = canvasView.context.commandManager.undoAvailableProperty
     val redoAvailableProperty = canvasView.context.commandManager.redoAvailableProperty
@@ -94,6 +96,19 @@ class EditorView(viewModel: EditorViewModel) : BorderPane() {
     fun redo() {
         canvasView.context.commandManager.redo()
     }
+
+    private inner class ShapeListCell: StringListCell<Shape>("shape-list-cell") {
+        init{
+            // hovering over the list sell highlights the shape on the canvas
+            val context = this@EditorView.viewModel
+            val cell = this@ShapeListCell
+            this.hoverProperty().addListener{ _, _: Boolean?, isNowHovered: Boolean ->
+                if (!cell.isEmpty) {
+                    context.eventBus.publish(ShapeHover(cell.item, isNowHovered))
+                }
+            }
+        }
+    }
 }
 
 class EditorViewModel(model: CanvasModel): CanvasViewModel(model) {
@@ -117,3 +132,4 @@ private fun rect(x: Double, y: Double, ctx: CanvasContext): Shape =
 
 private fun oval(x: Double, y: Double, ctx: CanvasContext): Shape =
     Shape.oval(BoundingBox(Random.nextDouble(100.0) + x, Random.nextDouble(100.0) + y, 200.0, 100.0), ctx)
+
