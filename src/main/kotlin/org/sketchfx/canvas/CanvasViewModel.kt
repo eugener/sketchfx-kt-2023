@@ -5,6 +5,7 @@ import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.ObservableList
 import javafx.geometry.Bounds
+import javafx.geometry.Point2D
 import javafx.scene.transform.Scale
 import javafx.scene.transform.Transform
 import javafx.scene.transform.Translate
@@ -18,7 +19,7 @@ import org.sketchfx.shape.Shape
 
 open class CanvasViewModel(private val model: CanvasModel) {
 
-    val eventBus: EventBus = EventBus()
+//    val eventBus: EventBus = EventBus()
     val selection = SelectionModel<Shape> { s ->
         arrayOf(
             s.boundsInParentProperty(), // update selection band on selected shape bounds change
@@ -82,6 +83,9 @@ open class CanvasViewModel(private val model: CanvasModel) {
     val selectionBandProperty: ObjectProperty<Bounds?> = SimpleObjectProperty()
     var selectionBand by selectionBandProperty.delegate()
 
+    val newShapeAvatarProperty: ObjectProperty<NewShapeAvatar?> = SimpleObjectProperty()
+    var newShapeAvatar by newShapeAvatarProperty.delegate()
+
     // update selection based on the bounds
     fun updateSelection(bounds: Bounds) {
         val selectedShapes = shapes().parallelStream().filter{it.boundsInParent.intersects(bounds)}
@@ -110,5 +114,6 @@ open class CanvasViewModel(private val model: CanvasModel) {
     }
 
 
-
 }
+
+data class NewShapeAvatar(val shape: Shape, val mousePosition: Point2D)

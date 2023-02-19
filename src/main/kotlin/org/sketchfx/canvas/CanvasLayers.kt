@@ -11,7 +11,6 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Region
 import javafx.scene.transform.Transform
 import org.sketchfx.cmd.CmdAppendShape
-import org.sketchfx.event.BasicSelectionShapeAdd
 import org.sketchfx.shape.Shape
 import org.sketchfx.shape.SelectionBox as SelectionBoxShape
 
@@ -62,8 +61,14 @@ class CatchAllLayer(private val context: CanvasViewModel): CanvasLayer() {
                         // temp shape has to be mouse-transparent for selection to work properly
                         isMouseTransparent = temp
                     }
-                    val event = BasicSelectionShapeAdd(shape, mousePosition, temp)
-                    context.eventBus.publish(event)
+                    if (temp) {
+                        context.newShapeAvatar = NewShapeAvatar(shape, mousePosition)
+                    } else {
+                        context.newShapeAvatar = null
+                        context.mouseDragMode = MouseDragMode.SELECTION
+                        context.commandManager.execute(CmdAppendShape(shape))
+                    }
+
                 }
             }
 
@@ -119,12 +124,12 @@ class OverlayCanvasLayer(private val context: CanvasViewModel): CanvasLayer() {
                 context.hoveredShapeProperty.addListener(shapeHoverHandler)
                 context.selection.items().addListener(selectionChangeHandler)
                 context.selectionBandProperty.addListener(selectionBandHandler)
-                context.eventBus.subscribe(::basicShapeAddHandler)
+                context.newShapeAvatarProperty.addListener(newShapeAvatarHandler)
             } else {
                 context.hoveredShapeProperty.removeListener(shapeHoverHandler)
                 context.selection.items().removeListener(selectionChangeHandler)
                 context.selectionBandProperty.removeListener(selectionBandHandler)
-                context.eventBus.unsubscribe(::basicShapeAddHandler)
+                context.newShapeAvatarProperty.removeListener(newShapeAvatarHandler)
             }
         }
     }
@@ -151,27 +156,17 @@ class OverlayCanvasLayer(private val context: CanvasViewModel): CanvasLayer() {
         showSelection(context.selection.items())
     }
 
-    private fun basicShapeAddHandler( e: BasicSelectionShapeAdd) {
-        showBasicShape(e.shape, e.mousePosition, e.temp)
-    }
-
-    private fun showBasicShape(shape: Shape, mousePos: Point2D, temp: Boolean) {
-        if (temp) {
+    private val newShapeAvatarHandler = ChangeListener<NewShapeAvatar?> { _, _, shapeAvatar ->
+        if (shapeAvatar != null) {
             with(sizeLabel) {
-                val shapeBounds = shape.boundsInParent
-                text = "%.0f x %.0f".format(shapeBounds.width,shapeBounds.height)
-                layoutX = mousePos.x + 5
-                layoutY = mousePos.y + 5
+                val shapeBounds = shapeAvatar.shape.boundsInParent
+                text = "%.0f x %.0f".format(shapeBounds.width, shapeBounds.height)
+                layoutX = shapeAvatar.mousePosition.x + 5
+                layoutY = shapeAvatar.mousePosition.y + 5
             }
-            bandGroup.children.setAll(shape, sizeLabel)
+            bandGroup.children.setAll(shapeAvatar.shape, sizeLabel)
         } else {
-            try {
-                bandGroup.children.clear()
-            } finally {
-                context.mouseDragMode = MouseDragMode.SELECTION
-                context.commandManager.execute(CmdAppendShape(shape))
-            }
-
+            bandGroup.children.clear()
         }
     }
 
