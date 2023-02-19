@@ -1,5 +1,7 @@
 package org.sketchfx.editor
 
+import atlantafx.base.theme.Styles
+import atlantafx.base.theme.Tweaks
 import javafx.beans.InvalidationListener
 import javafx.beans.binding.Bindings
 import javafx.geometry.BoundingBox
@@ -60,6 +62,7 @@ class EditorView( private val viewModel: EditorViewModel) : BorderPane() {
     private val canvasView = CanvasView(viewModel)
 
     private val shapeListView = ListView<Shape>().apply {
+        styleClass.addAll(Tweaks.EDGE_TO_EDGE, Styles.DENSE, "shape-list-view")
         cellFactory = Callback{ShapeListCell()}
         selectionModel.selectionMode = SelectionMode.MULTIPLE
     }

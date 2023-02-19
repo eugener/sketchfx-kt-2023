@@ -62,12 +62,16 @@
     /*-fx-background-color: -fx-base;*/
 }
 
+.shape-list-view {
+    -fx-padding: 8;
+}
+
 /*.shape-list-cell:selected {*/
 /*    -fx-text-fill:white;*/
 /*    -fx-background-color: -fx-accent;*/
 /*}*/
 
-.menu, .menu-item {
+.menu, .menu-item, .menu-button, .tab-pane {
     -fx-font-size: 13;
 }
 
