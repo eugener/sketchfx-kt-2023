@@ -7,7 +7,6 @@ import javafx.scene.transform.Transform
 import org.sketchfx.cmd.CmdRelocateShapes
 import org.sketchfx.event.SelectionBounds
 import org.sketchfx.event.SelectionRelocated
-import org.sketchfx.event.SelectionUpdate
 import org.sketchfx.fx.delegate
 import org.sketchfx.infra.CommandManager
 import org.sketchfx.infra.EventBus
@@ -18,7 +17,6 @@ import org.sketchfx.shape.Shape
 abstract class CanvasContext {
 
     val eventBus: EventBus = EventBus().apply {
-        subscribe(::selectionAddHandler)
         subscribe(::selectionBoundsHandler)
     }
     val selection = SelectionModel<Shape>()
@@ -45,13 +43,13 @@ abstract class CanvasContext {
         selection.set(*selectedShapes.toList().toTypedArray())
     }
 
-    private fun selectionAddHandler(e: SelectionUpdate) {
-        if (!e.toggle) {
-            if (!selection.contains(e.shape)) {
-                selection.set(e.shape)
+    fun selectionUpdate(shape: Shape, toggle: Boolean) {
+        if (!toggle) {
+            if (!selection.contains(shape)) {
+                selection.set(shape)
             }
         } else {
-            selection.toggle(e.shape)
+            selection.toggle(shape)
         }
     }
 

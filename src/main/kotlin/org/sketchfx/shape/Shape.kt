@@ -13,7 +13,6 @@ import javafx.scene.paint.Paint
 import javafx.scene.shape.Ellipse
 import javafx.scene.shape.Rectangle
 import org.sketchfx.canvas.CanvasViewModel
-import org.sketchfx.event.SelectionUpdate
 import org.sketchfx.fx.MouseDragSupport
 import org.sketchfx.fx.delegate
 import java.util.*
@@ -178,7 +177,7 @@ data class Shape(
         when(event.eventType) {
             MouseEvent.MOUSE_ENTERED -> context.shapeHover = this
             MouseEvent.MOUSE_EXITED  -> context.shapeHover = null
-            MouseEvent.MOUSE_PRESSED -> context.eventBus.publish(SelectionUpdate( this, event.isShiftDown ))
+            MouseEvent.MOUSE_PRESSED -> context.selectionUpdate(this, event.isShiftDown )
         }
     }
 
