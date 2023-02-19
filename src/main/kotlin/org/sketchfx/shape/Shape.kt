@@ -13,7 +13,7 @@ import javafx.scene.paint.Paint
 import javafx.scene.shape.Ellipse
 import javafx.scene.shape.Rectangle
 import org.sketchfx.canvas.CanvasViewModel
-import org.sketchfx.fx.MouseDragSupport
+import org.sketchfx.canvas.MouseDragSupport
 import org.sketchfx.fx.delegate
 import java.util.*
 

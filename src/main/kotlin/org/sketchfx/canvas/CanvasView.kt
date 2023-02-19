@@ -25,8 +25,6 @@ class CanvasView(val context: CanvasViewModel) : StackPane()  {
                 val transform = get()
                 shapeLayer.setTransform(transform)
                 overlayLayer.setTransform(transform)
-                //allows to adjust selection elements by scale
-                context.fireSelectionRelocated()
             }
         }
 

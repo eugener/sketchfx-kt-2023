@@ -13,7 +13,6 @@ import javafx.scene.layout.Region
 import javafx.scene.transform.Transform
 import org.sketchfx.cmd.CmdAppendShape
 import org.sketchfx.event.*
-import org.sketchfx.fx.MouseDragSupport
 import org.sketchfx.shape.Shape
 import org.sketchfx.shape.SelectionBox as SelectionBoxShape
 
@@ -121,13 +120,11 @@ class OverlayCanvasLayer(private val context: CanvasViewModel): CanvasLayer() {
             if (newScene != null) {
                 context.shapeHoverProperty.addListener(shapeHoverHandler)
                 context.selection.items().addListener(selectionChangeHandler)
-                context.eventBus.subscribe(::selectionRelocatedHandler)
                 context.eventBus.subscribe(::selectionBandHandler)
                 context.eventBus.subscribe(::basicShapeAddHandler)
             } else {
                 context.shapeHoverProperty.removeListener(shapeHoverHandler)
                 context.selection.items().removeListener(selectionChangeHandler)
-                context.eventBus.unsubscribe(::selectionRelocatedHandler)
                 context.eventBus.unsubscribe(::selectionBandHandler)
                 context.eventBus.unsubscribe(::basicShapeAddHandler)
             }
@@ -173,11 +170,6 @@ class OverlayCanvasLayer(private val context: CanvasViewModel): CanvasLayer() {
             }
 
         }
-    }
-
-
-    private fun selectionRelocatedHandler(e: SelectionRelocated) {
-        showSelection(e.selection)
     }
 
     private fun hideHover() {

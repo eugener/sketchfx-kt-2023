@@ -8,13 +8,61 @@ import javafx.geometry.Bounds
 import javafx.scene.transform.Scale
 import javafx.scene.transform.Transform
 import javafx.scene.transform.Translate
+import org.sketchfx.cmd.CmdRelocateShapes
+import org.sketchfx.event.SelectionBounds
 import org.sketchfx.fx.delegate
+import org.sketchfx.infra.CommandManager
+import org.sketchfx.infra.EventBus
+import org.sketchfx.infra.SelectionModel
+import org.sketchfx.shape.BasicShapeType
 import org.sketchfx.shape.Shape
 
-open class CanvasViewModel(private val model: CanvasModel): CanvasContext() {
+open class CanvasViewModel(private val model: CanvasModel) {
+
+    val eventBus: EventBus = EventBus().apply {
+        subscribe(::selectionBoundsHandler)
+    }
+    val selection = SelectionModel<Shape> { s ->
+        arrayOf(
+            s.boundsInParentProperty(), // update selection band on selected shape bounds change
+            transformProperty           // allows to adjust selection band elements by scale
+        )
+    }
+
+    val commandManager: CommandManager<CanvasViewModel> = CommandManager(this)
+
+    val mouseDragModeProperty: ObjectProperty<MouseDragMode> = SimpleObjectProperty(MouseDragMode.SELECTION)
+    var mouseDragMode by mouseDragModeProperty.delegate()
+
+    var basicShape = BasicShapeType.RECTANGLE
+
+
+    private fun selectionBoundsHandler(e: SelectionBounds) {
+        val selectedShapes = shapes().parallelStream().filter{it.boundsInParent.intersects(e.bounds)}
+        selection.set(*selectedShapes.toList().toTypedArray())
+    }
+
+    fun selectionUpdate(shape: Shape, toggle: Boolean) {
+        if (!toggle) {
+            if (!selection.contains(shape)) {
+                selection.set(shape)
+            }
+        } else {
+            selection.toggle(shape)
+        }
+    }
+
+    fun shapeRelocated( shape: Shape, dx: Double, dy: Double, temp: Boolean) {
+        val cmd = CmdRelocateShapes(selection.items(), dx, dy)
+        if (temp) {
+            cmd.run(this)
+        } else {
+            commandManager.add(cmd)
+        }
+    }
 
     // the list of shapes on the canvas
-    override fun shapes(): ObservableList<Shape> = model.shapes
+    fun shapes(): ObservableList<Shape> = model.shapes
 
     // represents current transform of the canvas
     val transformProperty: ObjectProperty<Transform> = SimpleObjectProperty(buildTransform()).apply {
@@ -31,11 +79,11 @@ open class CanvasViewModel(private val model: CanvasModel): CanvasContext() {
         return model.scaleProperty.get().createConcatenation(model.translateProperty.get())
     }
 
-    override val transform: Transform
+    val transform: Transform
         get() = transformProperty.get()
 
     // the scale exposed as a double
-    override var scale: Double
+    var scale: Double
         get() = model.scaleProperty.get().x
         set(newScale) {
             if (newScale >= 0) {
@@ -45,7 +93,7 @@ open class CanvasViewModel(private val model: CanvasModel): CanvasContext() {
         }
 
     // translate exposed as a pair of doubles
-    override var translate: Pair<Double, Double>
+    var translate: Pair<Double, Double>
         get() {
             val t = model.translateProperty.get()
             return Pair(t.x, t.y)

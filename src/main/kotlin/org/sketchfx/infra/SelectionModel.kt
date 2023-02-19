@@ -1,11 +1,13 @@
 package org.sketchfx.infra
 
+import javafx.beans.Observable
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
+import javafx.util.Callback
 
-class SelectionModel<T> {
+class SelectionModel<T>( extractor: Callback<T, Array<Observable>>) {
 
-    private val selection = FXCollections.observableArrayList<T>()
+    private val selection = FXCollections.observableArrayList<T>(extractor)
     private var suppressChangeEvents = false
 
     fun items(): ObservableList<T> = selection
