@@ -12,6 +12,9 @@ import javafx.event.EventHandler
 import javafx.event.EventType
 import javafx.scene.Node
 
+// Represents a binding between two objects
+// Usually relevant within Scene lifecycle where the binding should be established when the scene is set
+// and removed when the scene is unset
 interface Binding {
     fun bind()
     fun unbind()
