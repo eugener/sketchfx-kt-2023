@@ -5,6 +5,11 @@ import javafx.geometry.Bounds
 import javafx.scene.Node
 import javafx.scene.shape.Rectangle
 
+interface SceneLifecycle {
+    fun onSceneSet()
+    fun onSceneUnset()
+}
+
 object NodeExt {
 
     private const val clipperId = "clipper"
@@ -29,4 +34,21 @@ object NodeExt {
             }
         }
 
+    fun Node.setupSceneLifecycle(node: SceneLifecycle) {
+        sceneProperty().addListener { _, _, newScene ->
+            if (newScene != null) {
+                node.onSceneSet()
+            } else {
+                node.onSceneUnset()
+            }
+        }
+    }
+
+    fun Node.setupSceneLifecycle() {
+        if ( this is SceneLifecycle) {
+            setupSceneLifecycle(this)
+        } else {
+            throw IllegalArgumentException("Node must implement SceneLifecycle")
+        }
+    }
 }

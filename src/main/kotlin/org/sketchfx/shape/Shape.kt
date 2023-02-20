@@ -14,6 +14,8 @@ import javafx.scene.shape.Ellipse
 import javafx.scene.shape.Rectangle
 import org.sketchfx.canvas.CanvasViewModel
 import org.sketchfx.canvas.MouseDragSupport
+import org.sketchfx.fx.NodeExt.setupSceneLifecycle
+import org.sketchfx.fx.SceneLifecycle
 import org.sketchfx.fx.delegate
 import java.util.*
 
@@ -21,7 +23,7 @@ data class Shape(
     private val bounds: Bounds,
     private val context: CanvasViewModel,
     private val buildShape: (Bounds) -> Collection<Node>
-    ): Group() {
+    ): Group(), SceneLifecycle {
 
     val sid: String = UUID.randomUUID().toString()
 
@@ -135,17 +137,17 @@ data class Shape(
     init {
         isPickOnBounds = false
         children.setAll( buildShape(bounds).map(::updateAttrs) )
+        setupSceneLifecycle()
+    }
 
-        sceneProperty().addListener { _, _, newScene ->
-            if (newScene != null) {
-                addEventHandler(MouseEvent.ANY, ::mouseEventHandler)
-                dragSupport.enable()
-            } else {
-                removeEventHandler(MouseEvent.ANY, ::mouseEventHandler)
-                dragSupport.disable()
-            }
-        }
+    override fun onSceneSet() {
+        addEventHandler(MouseEvent.ANY, ::mouseEventHandler)
+        dragSupport.enable()
+    }
 
+    override fun onSceneUnset() {
+        removeEventHandler(MouseEvent.ANY, ::mouseEventHandler)
+        dragSupport.disable()
     }
 
     override fun toString(): String {

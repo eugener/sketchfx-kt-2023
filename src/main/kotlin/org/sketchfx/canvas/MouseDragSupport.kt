@@ -12,8 +12,6 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
-
-
 private typealias MouseEventHandler = EventHandler<MouseEvent>
 private typealias KeyEventHandler = EventHandler<KeyEvent>
 
