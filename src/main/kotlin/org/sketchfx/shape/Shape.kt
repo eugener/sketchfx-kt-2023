@@ -16,7 +16,7 @@ import org.sketchfx.canvas.CanvasViewModel
 import org.sketchfx.canvas.MouseDragSupport
 import org.sketchfx.fx.NodeExt.setupSceneLifecycle
 import org.sketchfx.fx.delegate
-import org.sketchfx.fx.eventHandlerBinding
+import org.sketchfx.fx.eventHandlerBindingLifecycle
 import java.util.*
 
 data class Shape(
@@ -136,7 +136,7 @@ data class Shape(
 
     private val lifecycleBindings = listOf(
         dragSupport,
-        eventHandlerBinding(MouseEvent.ANY, ::mouseEventHandler)
+        eventHandlerBindingLifecycle(MouseEvent.ANY, ::mouseEventHandler)
     )
 
     init {

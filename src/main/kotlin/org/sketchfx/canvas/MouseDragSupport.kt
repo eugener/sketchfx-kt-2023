@@ -8,7 +8,7 @@ import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.input.MouseEvent
 import javafx.event.EventHandler
-import org.sketchfx.fx.Binding
+import org.sketchfx.fx.BindingLifecycle
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -16,7 +16,7 @@ import kotlin.math.min
 private typealias MouseEventHandler = EventHandler<MouseEvent>
 private typealias KeyEventHandler = EventHandler<KeyEvent>
 
-abstract class MouseDragSupport(private val base: Node, private val context: CanvasViewModel): Binding {
+abstract class MouseDragSupport(private val base: Node, private val context: CanvasViewModel): BindingLifecycle {
 
     private var startPos: Point2D? = null
     private var prevPos: Point2D? = null

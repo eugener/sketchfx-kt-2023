@@ -7,7 +7,7 @@ import javafx.scene.control.Label
 import org.sketchfx.canvas.CanvasViewModel
 import org.sketchfx.canvas.NewShapeAvatar
 import org.sketchfx.fx.NodeExt.setupSceneLifecycle
-import org.sketchfx.fx.binding
+import org.sketchfx.fx.bindingLifecycle
 import org.sketchfx.shape.SelectionBox
 import org.sketchfx.shape.Shape
 
@@ -67,10 +67,10 @@ class OverlayCanvasLayer(private val context: CanvasViewModel): CanvasLayer() {
     }
 
     private val lifecycleBindings = listOf(
-        context.hoveredShapeProperty.binding(shapeHoverHandler),
-        context.selection.items().binding(selectionChangeHandler),
-        context.selectionBandProperty.binding(selectionBandHandler),
-        context.newShapeAvatarProperty.binding(newShapeAvatarHandler)
+        context.hoveredShapeProperty.bindingLifecycle(shapeHoverHandler),
+        context.selection.items().bindingLifecycle(selectionChangeHandler),
+        context.selectionBandProperty.bindingLifecycle(selectionBandHandler),
+        context.newShapeAvatarProperty.bindingLifecycle(newShapeAvatarHandler)
     )
 
     init {

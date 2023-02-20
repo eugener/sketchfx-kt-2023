@@ -12,7 +12,7 @@ import org.sketchfx.canvas.CanvasModel
 import org.sketchfx.canvas.CanvasView
 import org.sketchfx.canvas.CanvasViewModel
 import org.sketchfx.fx.*
-import org.sketchfx.fx.MultipleSelectionModelExt.bidirectionalBinding
+import org.sketchfx.fx.MultipleSelectionModelExt.bidirectionalBindingLifecycle
 import org.sketchfx.fx.NodeExt.setupSceneLifecycle
 import org.sketchfx.shape.BasicShapeType
 import org.sketchfx.shape.Shape
@@ -71,10 +71,10 @@ class EditorView( private val viewModel: EditorViewModel) : BorderPane() {
 
     private val statusListener = InvalidationListener{updateStatus()}
     private val lifecycleBindings = listOf(
-        shapeListView.items.contentBinding(viewModel.shapes()),
-        shapeListView.selectionModel.bidirectionalBinding(viewModel.selection.items()),
-        canvasView.context.transformProperty.binding(statusListener),
-        simpleBinding({updateStatus()}, {})
+        shapeListView.items.contentBindingLifecycle(viewModel.shapes()),
+        shapeListView.selectionModel.bidirectionalBindingLifecycle(viewModel.selection.items()),
+        canvasView.context.transformProperty.bindingLifecycle(statusListener),
+        simpleBindingLifecycle({updateStatus()}, {})
     )
 
     init {

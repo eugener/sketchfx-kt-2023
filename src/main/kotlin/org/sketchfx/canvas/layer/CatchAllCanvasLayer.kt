@@ -9,7 +9,7 @@ import org.sketchfx.canvas.MouseDragSupport
 import org.sketchfx.canvas.NewShapeAvatar
 import org.sketchfx.cmd.CmdAppendShape
 import org.sketchfx.fx.NodeExt.setupSceneLifecycle
-import org.sketchfx.fx.eventHandlerBinding
+import org.sketchfx.fx.eventHandlerBindingLifecycle
 import org.sketchfx.shape.Shape
 
 class CatchAllCanvasLayer(private val context: CanvasViewModel): CanvasLayer() {
@@ -53,7 +53,7 @@ class CatchAllCanvasLayer(private val context: CanvasViewModel): CanvasLayer() {
     private val mousePressHandler = EventHandler<MouseEvent> {context.selection.clear()}
     private val lifecycleBindings = listOf(
         dragSupport,
-        this.eventHandlerBinding(MouseEvent.MOUSE_PRESSED, mousePressHandler),
+        this.eventHandlerBindingLifecycle(MouseEvent.MOUSE_PRESSED, mousePressHandler),
     )
 
     init {

@@ -31,10 +31,10 @@ object NodeExt {
 
 
     // Sets up a collection of bindings that will be bound to the scene when the node is added to a scene and unbound when removed from a scene.
-    fun Node.setupSceneLifecycle(lifecycleBindings: Collection<Binding>) {
+    fun Node.setupSceneLifecycle(bindingLifecycles: Collection<BindingLifecycle>) {
         sceneProperty().addListener { _, _, newScene ->
-            val op = if (newScene != null) Binding::bind else Binding::unbind
-            lifecycleBindings.forEach(op)
+            val op = if (newScene != null) BindingLifecycle::bind else BindingLifecycle::unbind
+            bindingLifecycles.forEach(op)
         }
     }
 

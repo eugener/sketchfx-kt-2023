@@ -12,10 +12,10 @@ import org.sketchfx.canvas.layer.OverlayCanvasLayer
 import org.sketchfx.canvas.layer.ShapeCanvasLayer
 import org.sketchfx.fx.NodeExt.autoClipping
 import org.sketchfx.fx.NodeExt.setupSceneLifecycle
-import org.sketchfx.fx.binding
-import org.sketchfx.fx.contentBinding
-import org.sketchfx.fx.eventFilterBinding
-import org.sketchfx.fx.simpleBinding
+import org.sketchfx.fx.bindingLifecycle
+import org.sketchfx.fx.contentBindingLifecycle
+import org.sketchfx.fx.eventFilterBindingLifecycle
+import org.sketchfx.fx.simpleBindingLifecycle
 import org.sketchfx.shape.BasicShapeType
 
 
@@ -50,13 +50,13 @@ class CanvasView(val context: CanvasViewModel) : StackPane()  {
 
 
     private val lifeCycleBindings = listOf(
-        simpleBinding( {autoClipping = true}, {autoClipping = false}),
-        eventFilterBinding(ZoomEvent.ANY, ::zoomHandler),
-        eventFilterBinding(ScrollEvent.ANY, ::scrollHandler),
-        context.boundsInParentProperty.binding(this.boundsInParentProperty()),
-        canvasTransformProperty.binding(context.transformProperty),
-        shapeLayer.shapes().contentBinding(context.shapes()),
-        mouseDragModeProperty.binding(context.mouseDragModeProperty)
+        simpleBindingLifecycle( {autoClipping = true}, {autoClipping = false}),
+        eventFilterBindingLifecycle(ZoomEvent.ANY, ::zoomHandler),
+        eventFilterBindingLifecycle(ScrollEvent.ANY, ::scrollHandler),
+        context.boundsInParentProperty.bindingLifecycle(this.boundsInParentProperty()),
+        canvasTransformProperty.bindingLifecycle(context.transformProperty),
+        shapeLayer.shapes().contentBindingLifecycle(context.shapes()),
+        mouseDragModeProperty.bindingLifecycle(context.mouseDragModeProperty)
     )
 
     init {
