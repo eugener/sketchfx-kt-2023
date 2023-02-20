@@ -18,4 +18,11 @@ object MultipleSelectionModelExt {
     fun <T> MultipleSelectionModel<T>.unbindBidirectional(list: ObservableList<T>) {
         props.remove(propID(list))?.unbind()
     }
+
+    fun <T> MultipleSelectionModel<T>.bidirectionalBindingLifecycle(list: ObservableList<T>): BindingLifecycle {
+        return simpleBindingLifecycle(
+            bind = { bindBidirectional(list) },
+            unbind = { unbindBidirectional(list) }
+        )
+    }
 }

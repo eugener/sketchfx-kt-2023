@@ -1,6 +1,5 @@
 package org.sketchfx.canvas
 
-import javafx.beans.binding.Bindings
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.Cursor
@@ -8,7 +7,15 @@ import javafx.scene.input.ScrollEvent
 import javafx.scene.input.ZoomEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.transform.Transform
+import org.sketchfx.canvas.layer.CatchAllCanvasLayer
+import org.sketchfx.canvas.layer.OverlayCanvasLayer
+import org.sketchfx.canvas.layer.ShapeCanvasLayer
 import org.sketchfx.fx.NodeExt.autoClipping
+import org.sketchfx.fx.NodeExt.setupSceneLifecycle
+import org.sketchfx.fx.bindingLifecycle
+import org.sketchfx.fx.contentBindingLifecycle
+import org.sketchfx.fx.eventFilterBindingLifecycle
+import org.sketchfx.fx.simpleBindingLifecycle
 import org.sketchfx.shape.BasicShapeType
 
 
@@ -16,7 +23,7 @@ class CanvasView(val context: CanvasViewModel) : StackPane()  {
 
     private val shapeLayer = ShapeCanvasLayer()
     private val overlayLayer = OverlayCanvasLayer(context)
-    private val catchAllLayer = CatchAllLayer(context)
+    private val catchAllLayer = CatchAllCanvasLayer(context)
 
     // canvas transform - calculated from scale and translation
     private val canvasTransformProperty: ObjectProperty<Transform> =
@@ -41,6 +48,17 @@ class CanvasView(val context: CanvasViewModel) : StackPane()  {
             }
         }
 
+
+    private val lifeCycleBindings = listOf(
+        simpleBindingLifecycle( {autoClipping = true}, {autoClipping = false}),
+        eventFilterBindingLifecycle(ZoomEvent.ANY, ::zoomHandler),
+        eventFilterBindingLifecycle(ScrollEvent.ANY, ::scrollHandler),
+        context.boundsInParentProperty.bindingLifecycle(this.boundsInParentProperty()),
+        canvasTransformProperty.bindingLifecycle(context.transformProperty),
+        shapeLayer.shapes().contentBindingLifecycle(context.shapes()),
+        mouseDragModeProperty.bindingLifecycle(context.mouseDragModeProperty)
+    )
+
     init {
 
         styleClass.add("canvas-view")
@@ -52,27 +70,7 @@ class CanvasView(val context: CanvasViewModel) : StackPane()  {
             overlayLayer,
         )
 
-        sceneProperty().addListener { _, _, newScene ->
-            if (newScene != null) {
-                autoClipping = true
-                addEventFilter(ZoomEvent.ANY, ::zoomHandler)
-                addEventFilter(ScrollEvent.ANY, ::scrollHandler)
-
-                context.boundsInParentProperty.bind(this.boundsInParentProperty())
-                canvasTransformProperty.bind(context.transformProperty)
-                Bindings.bindContent(shapeLayer.shapes(), context.shapes())
-                mouseDragModeProperty.bind(context.mouseDragModeProperty)
-            } else {
-                autoClipping = false
-                removeEventFilter(ZoomEvent.ANY, ::zoomHandler)
-                removeEventFilter(ScrollEvent.ANY, ::scrollHandler)
-
-                context.boundsInParentProperty.unbind()
-                canvasTransformProperty.unbind()
-                Bindings.unbindContent(shapeLayer.shapes(), context.shapes())
-                mouseDragModeProperty.unbind()
-            }
-        }
+        setupSceneLifecycle(lifeCycleBindings)
 
     }
 

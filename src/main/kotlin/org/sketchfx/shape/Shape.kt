@@ -14,7 +14,9 @@ import javafx.scene.shape.Ellipse
 import javafx.scene.shape.Rectangle
 import org.sketchfx.canvas.CanvasViewModel
 import org.sketchfx.canvas.MouseDragSupport
+import org.sketchfx.fx.NodeExt.setupSceneLifecycle
 import org.sketchfx.fx.delegate
+import org.sketchfx.fx.eventHandlerBindingLifecycle
 import java.util.*
 
 data class Shape(
@@ -119,20 +121,15 @@ data class Shape(
         }
     }
 
+    private val lifecycleBindings = listOf(
+        dragSupport,
+        eventHandlerBindingLifecycle(MouseEvent.ANY, ::mouseEventHandler)
+    )
+
     init {
         isPickOnBounds = false
         children.setAll( buildShape(bounds).map(::updateAttrs) )
-
-        sceneProperty().addListener { _, _, newScene ->
-            if (newScene != null) {
-                addEventHandler(MouseEvent.ANY, ::mouseEventHandler)
-                dragSupport.enable()
-            } else {
-                removeEventHandler(MouseEvent.ANY, ::mouseEventHandler)
-                dragSupport.disable()
-            }
-        }
-
+        setupSceneLifecycle(lifecycleBindings)
     }
 
     override fun toString(): String {

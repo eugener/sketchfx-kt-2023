@@ -3,7 +3,6 @@ package org.sketchfx.editor
 import atlantafx.base.theme.Styles
 import atlantafx.base.theme.Tweaks
 import javafx.beans.InvalidationListener
-import javafx.beans.binding.Bindings
 import javafx.geometry.BoundingBox
 import javafx.scene.control.*
 import javafx.scene.input.KeyCombination
@@ -12,10 +11,9 @@ import javafx.util.Callback
 import org.sketchfx.canvas.CanvasModel
 import org.sketchfx.canvas.CanvasView
 import org.sketchfx.canvas.CanvasViewModel
-import org.sketchfx.fx.MultipleSelectionModelExt.bindBidirectional
-import org.sketchfx.fx.MultipleSelectionModelExt.unbindBidirectional
-import org.sketchfx.fx.Spacer
-import org.sketchfx.fx.StringListCell
+import org.sketchfx.fx.*
+import org.sketchfx.fx.MultipleSelectionModelExt.bidirectionalBindingLifecycle
+import org.sketchfx.fx.NodeExt.setupSceneLifecycle
 import org.sketchfx.shape.BasicShapeType
 import org.sketchfx.shape.Shape
 import kotlin.random.Random
@@ -71,6 +69,13 @@ class EditorView( private val viewModel: EditorViewModel) : BorderPane() {
     val undoAvailableProperty = canvasView.context.commandManager.undoAvailableProperty
     val redoAvailableProperty = canvasView.context.commandManager.redoAvailableProperty
 
+    private val statusListener = InvalidationListener{updateStatus()}
+    private val lifecycleBindings = listOf(
+        shapeListView.items.contentBindingLifecycle(viewModel.shapes()),
+        shapeListView.selectionModel.bidirectionalBindingLifecycle(viewModel.selection.items()),
+        canvasView.context.transformProperty.bindingLifecycle(statusListener),
+        simpleBindingLifecycle({updateStatus()}, {})
+    )
 
     init {
         styleClass.setAll("editor-view")
@@ -83,23 +88,8 @@ class EditorView( private val viewModel: EditorViewModel) : BorderPane() {
             )
         }
         bottom = status
+        setupSceneLifecycle(lifecycleBindings)
 
-        val statusListener = InvalidationListener{updateStatus()}
-
-        val canvasTransformProperty = canvasView.context.transformProperty
-
-        sceneProperty().addListener { _, _, newScene ->
-            if (newScene != null) {
-                Bindings.bindContent(shapeListView.items, viewModel.shapes())
-                shapeListView.selectionModel.bindBidirectional(viewModel.selection.items())
-                canvasTransformProperty.addListener(statusListener)
-                updateStatus()
-            } else {
-                Bindings.unbindContent(shapeListView.items, viewModel.shapes())
-                shapeListView.selectionModel.unbindBidirectional(viewModel.selection.items())
-                canvasTransformProperty.removeListener(statusListener)
-            }
-        }
     }
 
     private fun updateStatus() {
@@ -131,6 +121,7 @@ class EditorView( private val viewModel: EditorViewModel) : BorderPane() {
             }
         }
     }
+
 }
 
 class EditorViewModel(model: CanvasModel): CanvasViewModel(model) {
