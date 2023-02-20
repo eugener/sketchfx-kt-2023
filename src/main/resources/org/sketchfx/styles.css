@@ -26,12 +26,6 @@
     -fx-control-inner-background-alt: -fx-control-inner-background ;
 }
 
-.canvas-view {
-    /*-fx-background-color: white;*/
-    /*-fx-border-insets: 3px;*/
-    /*-fx-background-insets: 3px;*/
-}
-
 .status-bar {
     -fx-text-alignment: right;
     -fx-padding: 3 5 3 5;

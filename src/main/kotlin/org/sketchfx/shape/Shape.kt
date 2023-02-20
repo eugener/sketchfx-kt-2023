@@ -35,13 +35,11 @@ data class Shape(
         private val highlightFill: Color = Color.web(highlight, 0.05)
         private val highlightStroke: Color = Color.web(highlight)
 
-        private val selectionFill: Color = Color.TRANSPARENT
-        private val selectionStroke: Color = Color.web(highlight)
+        val selectionFill: Color = Color.TRANSPARENT
+        val selectionStroke: Color = Color.web(highlight)
 
         private val selectionBandFill: Color = Color.web(highlight, 0.1)
         private val selectionBandStroke: Color = Color.web(highlight, 0.2)
-
-        private const val handleSize: Int = 8
 
         // common shapes
         fun rectangle(bounds: Bounds, context: CanvasViewModel): Shape {
@@ -104,18 +102,7 @@ data class Shape(
             }
         }
 
-        fun selectionHandle(x: Double, y: Double, context: CanvasViewModel): Node {
 
-            val size = handleSize / context.scale
-            val offset = size / 2
-            val lineWidth = 1/ context.scale
-
-            return Rectangle(x-offset, y-offset, size, size).apply{
-                fill = Color.WHITE
-                stroke = selectionStroke
-                strokeWidth = lineWidth
-            }
-        }
 
     }
 
