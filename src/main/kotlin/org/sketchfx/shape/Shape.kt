@@ -15,15 +15,15 @@ import javafx.scene.shape.Rectangle
 import org.sketchfx.canvas.CanvasViewModel
 import org.sketchfx.canvas.MouseDragSupport
 import org.sketchfx.fx.NodeExt.setupSceneLifecycle
-import org.sketchfx.fx.SceneLifecycle
 import org.sketchfx.fx.delegate
+import org.sketchfx.fx.eventHandlerBinding
 import java.util.*
 
 data class Shape(
     private val bounds: Bounds,
     private val context: CanvasViewModel,
     private val buildShape: (Bounds) -> Collection<Node>
-    ): Group(), SceneLifecycle {
+    ): Group() {
 
     val sid: String = UUID.randomUUID().toString()
 
@@ -134,20 +134,15 @@ data class Shape(
         }
     }
 
+    private val lifecycleBindings = listOf(
+        dragSupport,
+        eventHandlerBinding(MouseEvent.ANY, ::mouseEventHandler)
+    )
+
     init {
         isPickOnBounds = false
         children.setAll( buildShape(bounds).map(::updateAttrs) )
-        setupSceneLifecycle()
-    }
-
-    override fun onSceneSet() {
-        addEventHandler(MouseEvent.ANY, ::mouseEventHandler)
-        dragSupport.enable()
-    }
-
-    override fun onSceneUnset() {
-        removeEventHandler(MouseEvent.ANY, ::mouseEventHandler)
-        dragSupport.disable()
+        setupSceneLifecycle(lifecycleBindings)
     }
 
     override fun toString(): String {

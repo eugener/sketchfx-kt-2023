@@ -3,7 +3,6 @@ package org.sketchfx.editor
 import atlantafx.base.theme.Styles
 import atlantafx.base.theme.Tweaks
 import javafx.beans.InvalidationListener
-import javafx.beans.binding.Bindings
 import javafx.geometry.BoundingBox
 import javafx.scene.control.*
 import javafx.scene.input.KeyCombination
@@ -12,17 +11,14 @@ import javafx.util.Callback
 import org.sketchfx.canvas.CanvasModel
 import org.sketchfx.canvas.CanvasView
 import org.sketchfx.canvas.CanvasViewModel
-import org.sketchfx.fx.MultipleSelectionModelExt.bindBidirectional
-import org.sketchfx.fx.MultipleSelectionModelExt.unbindBidirectional
+import org.sketchfx.fx.*
+import org.sketchfx.fx.MultipleSelectionModelExt.bidirectionalBinding
 import org.sketchfx.fx.NodeExt.setupSceneLifecycle
-import org.sketchfx.fx.SceneLifecycle
-import org.sketchfx.fx.Spacer
-import org.sketchfx.fx.StringListCell
 import org.sketchfx.shape.BasicShapeType
 import org.sketchfx.shape.Shape
 import kotlin.random.Random
 
-class EditorView( private val viewModel: EditorViewModel) : BorderPane(), SceneLifecycle {
+class EditorView( private val viewModel: EditorViewModel) : BorderPane() {
 
     private val status = Label("").apply {
         prefWidth = Double.MAX_VALUE
@@ -73,6 +69,13 @@ class EditorView( private val viewModel: EditorViewModel) : BorderPane(), SceneL
     val undoAvailableProperty = canvasView.context.commandManager.undoAvailableProperty
     val redoAvailableProperty = canvasView.context.commandManager.redoAvailableProperty
 
+    private val statusListener = InvalidationListener{updateStatus()}
+    private val lifecycleBindings = listOf(
+        shapeListView.items.contentBinding(viewModel.shapes()),
+        shapeListView.selectionModel.bidirectionalBinding(viewModel.selection.items()),
+        canvasView.context.transformProperty.binding(statusListener),
+        simpleBinding({updateStatus()}, {})
+    )
 
     init {
         styleClass.setAll("editor-view")
@@ -85,23 +88,8 @@ class EditorView( private val viewModel: EditorViewModel) : BorderPane(), SceneL
             )
         }
         bottom = status
-        setupSceneLifecycle()
+        setupSceneLifecycle(lifecycleBindings)
 
-    }
-
-    private val statusListener = InvalidationListener{updateStatus()}
-
-    override fun onSceneSet() {
-        Bindings.bindContent(shapeListView.items, viewModel.shapes())
-        shapeListView.selectionModel.bindBidirectional(viewModel.selection.items())
-        canvasView.context.transformProperty.addListener(statusListener)
-        updateStatus()
-    }
-
-    override fun onSceneUnset() {
-        Bindings.unbindContent(shapeListView.items, viewModel.shapes())
-        shapeListView.selectionModel.unbindBidirectional(viewModel.selection.items())
-        canvasView.context.transformProperty.removeListener(statusListener)
     }
 
     private fun updateStatus() {

@@ -9,10 +9,10 @@ import org.sketchfx.canvas.MouseDragSupport
 import org.sketchfx.canvas.NewShapeAvatar
 import org.sketchfx.cmd.CmdAppendShape
 import org.sketchfx.fx.NodeExt.setupSceneLifecycle
-import org.sketchfx.fx.SceneLifecycle
+import org.sketchfx.fx.eventHandlerBinding
 import org.sketchfx.shape.Shape
 
-class CatchAllCanvasLayer(private val context: CanvasViewModel): CanvasLayer(), SceneLifecycle {
+class CatchAllCanvasLayer(private val context: CanvasViewModel): CanvasLayer() {
 
     private val dragSupport = object: MouseDragSupport(this, context) {
 
@@ -51,24 +51,18 @@ class CatchAllCanvasLayer(private val context: CanvasViewModel): CanvasLayer(), 
     }
 
     private val mousePressHandler = EventHandler<MouseEvent> {context.selection.clear()}
+    private val lifecycleBindings = listOf(
+        dragSupport,
+        this.eventHandlerBinding(MouseEvent.MOUSE_PRESSED, mousePressHandler),
+    )
 
     init {
         isPickOnBounds = true
-        setupSceneLifecycle()
+        setupSceneLifecycle(lifecycleBindings)
 
         addEventHandler(MouseEvent.MOUSE_PRESSED) {
             context.selection.clear()
         }
-    }
-
-    override fun onSceneSet() {
-        addEventHandler(MouseEvent.MOUSE_PRESSED, mousePressHandler)
-        dragSupport.enable()
-    }
-
-    override fun onSceneUnset() {
-        removeEventHandler(MouseEvent.MOUSE_RELEASED, mousePressHandler)
-        dragSupport.disable()
     }
 
 }

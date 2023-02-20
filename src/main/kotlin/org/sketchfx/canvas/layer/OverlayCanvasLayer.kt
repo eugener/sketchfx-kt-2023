@@ -7,11 +7,11 @@ import javafx.scene.control.Label
 import org.sketchfx.canvas.CanvasViewModel
 import org.sketchfx.canvas.NewShapeAvatar
 import org.sketchfx.fx.NodeExt.setupSceneLifecycle
-import org.sketchfx.fx.SceneLifecycle
+import org.sketchfx.fx.binding
 import org.sketchfx.shape.SelectionBox
 import org.sketchfx.shape.Shape
 
-class OverlayCanvasLayer(private val context: CanvasViewModel): CanvasLayer(), SceneLifecycle {
+class OverlayCanvasLayer(private val context: CanvasViewModel): CanvasLayer() {
 
     private val hoverGroup = Group()
     private val selectionGroup = Group()
@@ -22,24 +22,13 @@ class OverlayCanvasLayer(private val context: CanvasViewModel): CanvasLayer(), S
         isMouseTransparent = true
     }
 
-    init {
-        this.group.children.addAll(hoverGroup, selectionGroup, bandGroup)
-        setupSceneLifecycle()
-    }
-
-    override fun onSceneSet() {
-        context.hoveredShapeProperty.addListener(shapeHoverHandler)
-        context.selection.items().addListener(selectionChangeHandler)
-        context.selectionBandProperty.addListener(selectionBandHandler)
-        context.newShapeAvatarProperty.addListener(newShapeAvatarHandler)
-    }
-
-    override fun onSceneUnset() {
-        context.hoveredShapeProperty.removeListener(shapeHoverHandler)
-        context.selection.items().removeListener(selectionChangeHandler)
-        context.selectionBandProperty.removeListener(selectionBandHandler)
-        context.newShapeAvatarProperty.removeListener(newShapeAvatarHandler)
-    }
+//    override fun onSceneSet() {
+//        bindings.forEach(Binder::bind)
+//    }
+//
+//    override fun onSceneUnset() {
+//        bindings.forEach(Binder::unbind)
+//    }
 
     private val selectionBandHandler = ChangeListener{_, _, bounds ->
         if (bounds != null) {
@@ -75,6 +64,18 @@ class OverlayCanvasLayer(private val context: CanvasViewModel): CanvasLayer(), S
         } else {
             bandGroup.children.clear()
         }
+    }
+
+    private val lifecycleBindings = listOf(
+        context.hoveredShapeProperty.binding(shapeHoverHandler),
+        context.selection.items().binding(selectionChangeHandler),
+        context.selectionBandProperty.binding(selectionBandHandler),
+        context.newShapeAvatarProperty.binding(newShapeAvatarHandler)
+    )
+
+    init {
+        this.group.children.addAll(hoverGroup, selectionGroup, bandGroup)
+        setupSceneLifecycle(lifecycleBindings)
     }
 
     private fun hideHover() {

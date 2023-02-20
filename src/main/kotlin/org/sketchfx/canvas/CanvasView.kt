@@ -1,6 +1,5 @@
 package org.sketchfx.canvas
 
-import javafx.beans.binding.Bindings
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.Cursor
@@ -13,11 +12,14 @@ import org.sketchfx.canvas.layer.OverlayCanvasLayer
 import org.sketchfx.canvas.layer.ShapeCanvasLayer
 import org.sketchfx.fx.NodeExt.autoClipping
 import org.sketchfx.fx.NodeExt.setupSceneLifecycle
-import org.sketchfx.fx.SceneLifecycle
+import org.sketchfx.fx.binding
+import org.sketchfx.fx.contentBinding
+import org.sketchfx.fx.eventFilterBinding
+import org.sketchfx.fx.simpleBinding
 import org.sketchfx.shape.BasicShapeType
 
 
-class CanvasView(val context: CanvasViewModel) : StackPane(), SceneLifecycle  {
+class CanvasView(val context: CanvasViewModel) : StackPane()  {
 
     private val shapeLayer = ShapeCanvasLayer()
     private val overlayLayer = OverlayCanvasLayer(context)
@@ -46,6 +48,17 @@ class CanvasView(val context: CanvasViewModel) : StackPane(), SceneLifecycle  {
             }
         }
 
+
+    private val lifeCycleBindings = listOf(
+        simpleBinding( {autoClipping = true}, {autoClipping = false}),
+        eventFilterBinding(ZoomEvent.ANY, ::zoomHandler),
+        eventFilterBinding(ScrollEvent.ANY, ::scrollHandler),
+        context.boundsInParentProperty.binding(this.boundsInParentProperty()),
+        canvasTransformProperty.binding(context.transformProperty),
+        shapeLayer.shapes().contentBinding(context.shapes()),
+        mouseDragModeProperty.binding(context.mouseDragModeProperty)
+    )
+
     init {
 
         styleClass.add("canvas-view")
@@ -57,30 +70,8 @@ class CanvasView(val context: CanvasViewModel) : StackPane(), SceneLifecycle  {
             overlayLayer,
         )
 
-        setupSceneLifecycle()
+        setupSceneLifecycle(lifeCycleBindings)
 
-    }
-
-    override fun onSceneSet() {
-        autoClipping = true
-        addEventFilter(ZoomEvent.ANY, ::zoomHandler)
-        addEventFilter(ScrollEvent.ANY, ::scrollHandler)
-
-        context.boundsInParentProperty.bind(this.boundsInParentProperty())
-        canvasTransformProperty.bind(context.transformProperty)
-        Bindings.bindContent(shapeLayer.shapes(), context.shapes())
-        mouseDragModeProperty.bind(context.mouseDragModeProperty)
-    }
-
-    override fun onSceneUnset() {
-        autoClipping = false
-        removeEventFilter(ZoomEvent.ANY, ::zoomHandler)
-        removeEventFilter(ScrollEvent.ANY, ::scrollHandler)
-
-        context.boundsInParentProperty.unbind()
-        canvasTransformProperty.unbind()
-        Bindings.unbindContent(shapeLayer.shapes(), context.shapes())
-        mouseDragModeProperty.unbind()
     }
 
     fun addBasicShape(basicShape: BasicShapeType) {
