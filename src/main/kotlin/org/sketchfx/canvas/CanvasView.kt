@@ -47,17 +47,6 @@ class CanvasView(val context: CanvasViewModel) : StackPane()  {
             }
         }
 
-
-    private val lifeCycleBindings = listOf(
-        bindingLifecycle({ autoClipping = true }, { autoClipping = false }),
-        eventFilterBindingLifecycle(ZoomEvent.ANY, ::zoomHandler),
-        eventFilterBindingLifecycle(ScrollEvent.ANY, ::scrollHandler),
-        context.boundsInParentProperty.bindingLifecycle(this.boundsInParentProperty()),
-        canvasTransformProperty.bindingLifecycle(context.transformProperty),
-        shapeLayer.shapes().contentBindingLifecycle(context.shapes()),
-        mouseDragModeProperty.bindingLifecycle(context.mouseDragModeProperty)
-    )
-
     init {
 
         styleClass.add("canvas-view")
@@ -69,7 +58,15 @@ class CanvasView(val context: CanvasViewModel) : StackPane()  {
             overlayLayer,
         )
 
-        setupSceneLifecycle(lifeCycleBindings)
+        setupSceneLifecycle(
+            bindingLifecycle({ autoClipping = true }, { autoClipping = false }),
+            eventFilterBindingLifecycle(ZoomEvent.ANY, ::zoomHandler),
+            eventFilterBindingLifecycle(ScrollEvent.ANY, ::scrollHandler),
+            context.boundsInParentProperty.bindingLifecycle(this.boundsInParentProperty()),
+            canvasTransformProperty.bindingLifecycle(context.transformProperty),
+            shapeLayer.shapes().contentBindingLifecycle(context.shapes()),
+            mouseDragModeProperty.bindingLifecycle(context.mouseDragModeProperty)
+        )
 
     }
 

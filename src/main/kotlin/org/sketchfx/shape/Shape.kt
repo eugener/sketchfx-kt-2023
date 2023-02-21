@@ -134,15 +134,13 @@ data class Shape(
         }
     }
 
-    private val lifecycleBindings = listOf(
-        dragSupport,
-        eventHandlerBindingLifecycle(MouseEvent.ANY, ::mouseEventHandler)
-    )
-
     init {
         isPickOnBounds = false
         children.setAll( buildShape(bounds).map(::updateAttrs) )
-        setupSceneLifecycle(lifecycleBindings)
+        setupSceneLifecycle(
+            dragSupport,
+            eventHandlerBindingLifecycle(MouseEvent.ANY, ::mouseEventHandler)
+        )
     }
 
     override fun toString(): String {

@@ -14,17 +14,14 @@ import org.sketchfx.shape.Shape
 
 class ShapeListView( private val viewModel: CanvasViewModel ): ListView<Shape>() {
 
-    private val lifecycleBindings = listOf(
-        items.contentBindingLifecycle(viewModel.shapes()),
-        selectionModel.bidirectionalBindingLifecycle(viewModel.selection.items()),
-    )
-
-
     init {
         styleClass.addAll("shape-list-view", Tweaks.EDGE_TO_EDGE, Styles.DENSE )
         cellFactory = Callback{ShapeListCell()}
         selectionModel.selectionMode = SelectionMode.MULTIPLE
-        setupSceneLifecycle(lifecycleBindings)
+        setupSceneLifecycle(
+            items.contentBindingLifecycle(viewModel.shapes()),
+            selectionModel.bidirectionalBindingLifecycle(viewModel.selection.items()),
+        )
     }
 
 

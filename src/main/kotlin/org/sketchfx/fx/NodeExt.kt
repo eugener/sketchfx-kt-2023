@@ -38,6 +38,10 @@ object NodeExt {
         }
     }
 
+    fun Node.setupSceneLifecycle( vararg bindingLifecycles: BindingLifecycle) {
+        setupSceneLifecycle(bindingLifecycles.toList())
+    }
+
 //    interface SceneLifecycle {
 //        fun onSceneSet()
 //        fun onSceneUnset()

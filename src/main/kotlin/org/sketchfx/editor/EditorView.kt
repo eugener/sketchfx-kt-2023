@@ -1,6 +1,5 @@
 package org.sketchfx.editor
 
-import javafx.beans.InvalidationListener
 import javafx.geometry.BoundingBox
 import javafx.scene.control.*
 import javafx.scene.input.KeyCombination
@@ -15,7 +14,7 @@ import org.sketchfx.shape.BasicShapeType
 import org.sketchfx.shape.Shape
 import kotlin.random.Random
 
-class EditorView( private val viewModel: EditorViewModel) : BorderPane() {
+class EditorView( viewModel: EditorViewModel) : BorderPane() {
 
     private val status = Label("").apply {
         prefWidth = Double.MAX_VALUE
@@ -60,12 +59,6 @@ class EditorView( private val viewModel: EditorViewModel) : BorderPane() {
     val undoAvailableProperty = canvasView.context.commandManager.undoAvailableProperty
     val redoAvailableProperty = canvasView.context.commandManager.redoAvailableProperty
 
-    private val statusListener = InvalidationListener{updateStatus()}
-    private val lifecycleBindings = listOf(
-        canvasView.context.transformProperty.bindingLifecycle(statusListener),
-        bindingLifecycle({updateStatus()}, {})
-    )
-
     init {
         styleClass.setAll("editor-view")
 
@@ -77,7 +70,10 @@ class EditorView( private val viewModel: EditorViewModel) : BorderPane() {
             )
         }
         bottom = status
-        setupSceneLifecycle(lifecycleBindings)
+        setupSceneLifecycle(
+            canvasView.context.transformProperty.bindingLifecycle { updateStatus() },
+            bindingLifecycle({updateStatus()}, {})
+        )
 
     }
 
@@ -99,8 +95,6 @@ class EditorView( private val viewModel: EditorViewModel) : BorderPane() {
 }
 
 class EditorViewModel(model: CanvasModel): CanvasViewModel(model) {
-
-//    val canvasViewModel = CanvasViewModel(model)
 
     init {
         // TODO for testing only
