@@ -1,19 +1,16 @@
 package org.sketchfx.editor
 
-import atlantafx.base.theme.Styles
-import atlantafx.base.theme.Tweaks
 import javafx.beans.InvalidationListener
 import javafx.geometry.BoundingBox
 import javafx.scene.control.*
 import javafx.scene.input.KeyCombination
 import javafx.scene.layout.BorderPane
-import javafx.util.Callback
 import org.sketchfx.canvas.CanvasModel
 import org.sketchfx.canvas.CanvasView
 import org.sketchfx.canvas.CanvasViewModel
-import org.sketchfx.fx.*
-import org.sketchfx.fx.MultipleSelectionModelExt.bidirectionalBindingLifecycle
 import org.sketchfx.fx.NodeExt.setupSceneLifecycle
+import org.sketchfx.fx.Spacer
+import org.sketchfx.fx.bindingLifecycle
 import org.sketchfx.shape.BasicShapeType
 import org.sketchfx.shape.Shape
 import kotlin.random.Random
@@ -58,21 +55,13 @@ class EditorView( private val viewModel: EditorViewModel) : BorderPane() {
         )
     }
     private val canvasView = CanvasView(viewModel)
-
-    private val shapeListView = ListView<Shape>().apply {
-        styleClass.addAll(Tweaks.EDGE_TO_EDGE, Styles.DENSE, "shape-list-view")
-        cellFactory = Callback{ShapeListCell()}
-        selectionModel.selectionMode = SelectionMode.MULTIPLE
-    }
-
+    private val shapeListView = ShapeListView(viewModel)
 
     val undoAvailableProperty = canvasView.context.commandManager.undoAvailableProperty
     val redoAvailableProperty = canvasView.context.commandManager.redoAvailableProperty
 
     private val statusListener = InvalidationListener{updateStatus()}
     private val lifecycleBindings = listOf(
-        shapeListView.items.contentBindingLifecycle(viewModel.shapes()),
-        shapeListView.selectionModel.bidirectionalBindingLifecycle(viewModel.selection.items()),
         canvasView.context.transformProperty.bindingLifecycle(statusListener),
         bindingLifecycle({updateStatus()}, {})
     )
@@ -96,9 +85,7 @@ class EditorView( private val viewModel: EditorViewModel) : BorderPane() {
         canvasView.context.transformProperty.get()?.run {
             status.text = "scale: %.2f; translate: (%.2f : %.2f)".format(mxx, tx, ty)
             zoomMenu.text= "%.0f%%".format(mxx * 100)
-
         }
-
     }
 
     fun undo() {
@@ -107,19 +94,6 @@ class EditorView( private val viewModel: EditorViewModel) : BorderPane() {
 
     fun redo() {
         canvasView.context.commandManager.redo()
-    }
-
-    private inner class ShapeListCell: StringListCell<Shape>("shape-list-cell") {
-        init{
-            // hovering over the list sell highlights the shape on the canvas
-            val context = this@EditorView.viewModel
-            val cell = this@ShapeListCell
-            this.hoverProperty().addListener{ _, _: Boolean?, isNowHovered: Boolean ->
-                if (!cell.isEmpty) {
-                    context.hoveredShape = if (isNowHovered) cell.item else null
-                }
-            }
-        }
     }
 
 }
