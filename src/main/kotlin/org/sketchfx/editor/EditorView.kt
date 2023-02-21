@@ -74,7 +74,7 @@ class EditorView( private val viewModel: EditorViewModel) : BorderPane() {
         shapeListView.items.contentBindingLifecycle(viewModel.shapes()),
         shapeListView.selectionModel.bidirectionalBindingLifecycle(viewModel.selection.items()),
         canvasView.context.transformProperty.bindingLifecycle(statusListener),
-        simpleBindingLifecycle({updateStatus()}, {})
+        bindingLifecycle({updateStatus()}, {})
     )
 
     init {

@@ -20,37 +20,37 @@ interface BindingLifecycle {
     fun unbind()
 }
 
-fun simpleBindingLifecycle(bind: () -> Unit, unbind: () -> Unit): BindingLifecycle {
-    return object : BindingLifecycle {
-        override fun bind() { bind() }
-        override fun unbind() { unbind() }
-    }
+private class BindingLifecycleImpl(val bindAction: () -> Unit, val unbindAction: () -> Unit) : BindingLifecycle {
+    override fun bind() { bindAction() }
+    override fun unbind() { unbindAction() }
 }
 
+fun bindingLifecycle(bind: () -> Unit, unbind: () -> Unit): BindingLifecycle = BindingLifecycleImpl(bind, unbind)
+
 fun <T> ObservableValue<T>.bindingLifecycle(listener: ChangeListener<T>): BindingLifecycle {
-    return simpleBindingLifecycle( bind = { addListener(listener) }, unbind = { removeListener(listener) })
+    return bindingLifecycle( bind = { addListener(listener) }, unbind = { removeListener(listener) })
 }
 
 fun <T> Property<T>.bindingLifecycle(prop: ObservableValue<T>): BindingLifecycle {
-    return simpleBindingLifecycle( bind = { bind(prop) }, unbind = { unbind() })
+    return bindingLifecycle( bind = { bind(prop) }, unbind = { unbind() })
 }
 
 fun <T> List<T>.contentBindingLifecycle(list: ObservableList<T>): BindingLifecycle {
-    return simpleBindingLifecycle(
-        bind = { Bindings.bindContent(this@contentBindingLifecycle, list) },
-        unbind = { Bindings.unbindContent(this@contentBindingLifecycle, list) }
+    return bindingLifecycle(
+        bind = { Bindings.bindContent(this, list) },
+        unbind = { Bindings.unbindContent(this, list) }
     )
 }
 
 
 fun Observable.bindingLifecycle(listener: InvalidationListener): BindingLifecycle {
-    return simpleBindingLifecycle( bind = { addListener(listener) }, unbind = { removeListener(listener) })
+    return bindingLifecycle( bind = { addListener(listener) }, unbind = { removeListener(listener) })
 }
 
 fun <T: Event> Node.eventHandlerBindingLifecycle(event: EventType<T>, handler: EventHandler<T>): BindingLifecycle {
-    return simpleBindingLifecycle( bind = { addEventHandler(event, handler) }, unbind = { removeEventHandler(event, handler) })
+    return bindingLifecycle( bind = { addEventHandler(event, handler) }, unbind = { removeEventHandler(event, handler) })
 }
 
 fun <T: Event> Node.eventFilterBindingLifecycle(event: EventType<T>, handler: EventHandler<T>): BindingLifecycle {
-    return simpleBindingLifecycle( bind = { addEventFilter(event, handler) }, unbind = { removeEventFilter(event, handler) })
+    return bindingLifecycle( bind = { addEventFilter(event, handler) }, unbind = { removeEventFilter(event, handler) })
 }

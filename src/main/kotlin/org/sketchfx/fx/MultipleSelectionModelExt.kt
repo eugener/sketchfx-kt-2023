@@ -20,7 +20,7 @@ object MultipleSelectionModelExt {
     }
 
     fun <T> MultipleSelectionModel<T>.bidirectionalBindingLifecycle(list: ObservableList<T>): BindingLifecycle {
-        return simpleBindingLifecycle(
+        return bindingLifecycle(
             bind = { bindBidirectional(list) },
             unbind = { unbindBidirectional(list) }
         )

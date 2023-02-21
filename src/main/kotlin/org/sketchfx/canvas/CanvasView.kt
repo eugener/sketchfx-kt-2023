@@ -15,7 +15,6 @@ import org.sketchfx.fx.NodeExt.setupSceneLifecycle
 import org.sketchfx.fx.bindingLifecycle
 import org.sketchfx.fx.contentBindingLifecycle
 import org.sketchfx.fx.eventFilterBindingLifecycle
-import org.sketchfx.fx.simpleBindingLifecycle
 import org.sketchfx.shape.BasicShapeType
 
 
@@ -50,7 +49,7 @@ class CanvasView(val context: CanvasViewModel) : StackPane()  {
 
 
     private val lifeCycleBindings = listOf(
-        simpleBindingLifecycle( {autoClipping = true}, {autoClipping = false}),
+        bindingLifecycle({ autoClipping = true }, { autoClipping = false }),
         eventFilterBindingLifecycle(ZoomEvent.ANY, ::zoomHandler),
         eventFilterBindingLifecycle(ScrollEvent.ANY, ::scrollHandler),
         context.boundsInParentProperty.bindingLifecycle(this.boundsInParentProperty()),
