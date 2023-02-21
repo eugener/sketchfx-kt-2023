@@ -66,16 +66,14 @@ class OverlayCanvasLayer(private val context: CanvasViewModel): CanvasLayer() {
         }
     }
 
-    private val lifecycleBindings = listOf(
-        context.hoveredShapeProperty.bindingLifecycle(shapeHoverHandler),
-        context.selection.items().bindingLifecycle(selectionChangeHandler),
-        context.selectionBandProperty.bindingLifecycle(selectionBandHandler),
-        context.newShapeAvatarProperty.bindingLifecycle(newShapeAvatarHandler)
-    )
-
     init {
         this.group.children.addAll(hoverGroup, selectionGroup, bandGroup)
-        setupSceneLifecycle(lifecycleBindings)
+        setupSceneLifecycle(
+            context.hoveredShapeProperty.bindingLifecycle(shapeHoverHandler),
+            context.selection.items().bindingLifecycle(selectionChangeHandler),
+            context.selectionBandProperty.bindingLifecycle(selectionBandHandler),
+            context.newShapeAvatarProperty.bindingLifecycle(newShapeAvatarHandler)
+        )
     }
 
     private fun hideHover() {

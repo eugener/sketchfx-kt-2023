@@ -51,14 +51,13 @@ class CatchAllCanvasLayer(private val context: CanvasViewModel): CanvasLayer() {
     }
 
     private val mousePressHandler = EventHandler<MouseEvent> {context.selection.clear()}
-    private val lifecycleBindings = listOf(
-        dragSupport,
-        this.eventHandlerBindingLifecycle(MouseEvent.MOUSE_PRESSED, mousePressHandler),
-    )
 
     init {
         isPickOnBounds = true
-        setupSceneLifecycle(lifecycleBindings)
+        setupSceneLifecycle(
+            dragSupport,
+            this.eventHandlerBindingLifecycle(MouseEvent.MOUSE_PRESSED, mousePressHandler),
+        )
 
         addEventHandler(MouseEvent.MOUSE_PRESSED) {
             context.selection.clear()
