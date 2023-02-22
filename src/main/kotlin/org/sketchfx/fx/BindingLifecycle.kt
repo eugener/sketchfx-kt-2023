@@ -3,8 +3,10 @@ package org.sketchfx.fx
 import javafx.beans.InvalidationListener
 import javafx.beans.Observable
 import javafx.beans.binding.Bindings
+import javafx.beans.property.DoubleProperty
 import javafx.beans.property.Property
 import javafx.beans.value.ChangeListener
+import javafx.beans.value.ObservableDoubleValue
 import javafx.beans.value.ObservableValue
 import javafx.collections.ObservableList
 import javafx.event.Event
@@ -32,6 +34,10 @@ fun <T> ObservableValue<T>.bindingLifecycle(listener: ChangeListener<T>): Bindin
 }
 
 fun <T> Property<T>.bindingLifecycle(prop: ObservableValue<T>): BindingLifecycle {
+    return bindingLifecycle( bind = { bind(prop) }, unbind = { unbind() })
+}
+
+fun DoubleProperty.bindingLifecycle(prop: ObservableDoubleValue): BindingLifecycle {
     return bindingLifecycle( bind = { bind(prop) }, unbind = { unbind() })
 }
 
