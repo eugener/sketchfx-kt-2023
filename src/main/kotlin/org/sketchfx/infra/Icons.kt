@@ -11,11 +11,11 @@ import org.kordamp.ikonli.javafx.FontIcon
 enum class Icons(private val ikon: Ikon) {
 
     NEW_SHAPE(BootstrapIcons.PLUS_CIRCLE),
-    APP(BootstrapIcons.BOX)
+    APP(BootstrapIcons.BOX),
+    UNDO(BootstrapIcons.ARROW_COUNTERCLOCKWISE),
+    REDO(BootstrapIcons.ARROW_CLOCKWISE),
     ;
 
-    fun graphic(): Node {
-        return FontIcon.of(ikon)
-    }
+    fun graphic(): Node = FontIcon.of(ikon)
 
 }

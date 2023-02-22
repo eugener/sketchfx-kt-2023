@@ -5,6 +5,7 @@ import javafx.application.Application
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.event.EventHandler
+import javafx.scene.Node
 import javafx.scene.control.*
 import javafx.scene.input.KeyCombination
 import javafx.scene.layout.BorderPane
@@ -12,6 +13,7 @@ import javafx.stage.Stage
 import org.sketchfx.canvas.CanvasModel
 import org.sketchfx.editor.EditorView
 import org.sketchfx.editor.EditorViewModel
+import org.sketchfx.infra.Icons
 
 
 fun main(args: Array<String>) {
@@ -27,10 +29,10 @@ class App: Application() {
 
         setUserAgentStylesheet(STYLESHEET_MODENA)
 
-        val undoMenu = newMenuItem("Undo", "meta+Z") {
+        val undoMenu = newMenuItem("Undo", "meta+Z", Icons.UNDO.graphic()) {
             getCurrentEditor()?.undo()
         }
-        val redoMenu = newMenuItem("Redo", "meta+shift+Z") {
+        val redoMenu = newMenuItem("Redo", "meta+shift+Z", Icons.REDO.graphic()) {
             getCurrentEditor()?.redo()
         }
 
@@ -88,8 +90,9 @@ class App: Application() {
         }
     }
 
-    private fun newMenuItem(menuTitle: String, menuAccelerator: String, action: () -> Unit): MenuItem {
+    private fun newMenuItem(menuTitle: String, menuAccelerator: String, graphic: Node, action: () -> Unit): MenuItem {
         return MenuItem(menuTitle).apply {
+            this.graphic = graphic
             onAction = EventHandler { action() }
             accelerator = KeyCombination.keyCombination(menuAccelerator)
         }
