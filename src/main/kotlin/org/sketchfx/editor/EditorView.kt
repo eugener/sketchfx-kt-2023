@@ -10,6 +10,7 @@ import org.sketchfx.canvas.CanvasViewModel
 import org.sketchfx.fx.NodeExt.setupSceneLifecycle
 import org.sketchfx.fx.Spacer
 import org.sketchfx.fx.bindingLifecycle
+import org.sketchfx.infra.Icons
 import org.sketchfx.shape.BasicShapeType
 import org.sketchfx.shape.Shape
 import kotlin.random.Random
@@ -37,18 +38,20 @@ class EditorView( viewModel: EditorViewModel) : BorderPane() {
     private val canvasToolBarLeft = ToolBar().apply {
         items.setAll(
             Spacer.horizontal(),
-            MenuButton("Shape").apply {
-                BasicShapeType.values().forEach { shape ->
-                    items.add(MenuItem(shape.title()).apply {
-                        setOnAction { canvasView.addBasicShape(shape) }
-                    })
-                }
-            }
+            Button(null, Icons.APP.graphic()),
         )
     }
 
     private val canvasToolBarRight = ToolBar().apply {
         items.setAll(
+            MenuButton().apply {
+                graphic = Icons.NEW_SHAPE.graphic()
+                BasicShapeType.values().forEach { shape ->
+                    items.add(MenuItem(shape.title()).apply {
+                        setOnAction { canvasView.addBasicShape(shape) }
+                    })
+                }
+            },
             Spacer.horizontal(),
             zoomMenu
         )

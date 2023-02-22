@@ -24,6 +24,8 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
     implementation("io.github.mkpaz:atlantafx-base:1.2.0")
+    implementation("org.kordamp.ikonli:ikonli-bootstrapicons-pack:12.3.1")
+    implementation("org.kordamp.ikonli:ikonli-javafx:12.3.1")
 }
 
 tasks.test {

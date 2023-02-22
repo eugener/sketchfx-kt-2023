@@ -24,6 +24,8 @@
     -fx-font-size: 13;
     -fx-accent: #0D99FF;
     -fx-control-inner-background-alt: -fx-control-inner-background ;
+    -fx-icon-size: 1.5em;
+    -fx-icon-color: -fx-text-base-color;
 }
 
 .status-bar {
