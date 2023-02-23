@@ -28,17 +28,20 @@ class App: Application() {
 
         setUserAgentStylesheet(STYLESHEET_MODENA)
 
-        val undoAction = Action.of("Undo",  accelerator = "meta+Z"){  getCurrentEditor()?.undo() }
-        val redoAction = Action.of("Redo",  accelerator = "meta+shift+Z"){  getCurrentEditor()?.redo() }
+        val undoAction = Action.of("Undo").apply{
+            accelerator = "meta+Z"
+            action = {getCurrentEditor()?.undo()}
+        }
+        val redoAction = Action.of("Redo").apply{
+            accelerator = "meta+shift+Z"
+            action = {getCurrentEditor()?.redo()}
+        }
 
         val menuActions:List<Action> = listOf(
-            Action.group( "Edit",
-                undoAction,
-                redoAction
-            ),
+            Action.group( "Edit").apply {
+                actions = listOf(undoAction, redoAction)
+            },
         )
-
-
 
         currentEditorProperty.bind(tabs.selectionModel.selectedItemProperty().map { it?.content as? EditorView? })
         currentEditorProperty.addListener { _, oldEditor, newEditor ->

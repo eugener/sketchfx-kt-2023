@@ -37,17 +37,29 @@ class EditorView( viewModel: EditorViewModel) : BorderPane() {
     }
 
     private val toolbarActions: List<Action> = listOf(
-        Action.group(
-            null, buildGraphic = { Icons.NEW_SHAPE.graphic() },
-            Action.of("Rectangle") { canvasView.addBasicShape(BasicShapeType.RECTANGLE) },
-            Action.of("Ellipse"  ) { canvasView.addBasicShape(BasicShapeType.OVAL) },
-        ),
+        Action.group{ Icons.NEW_SHAPE.graphic() }.apply {
+            actions = listOf(
+                Action.of("Rectangle").apply {
+                    action = { canvasView.addBasicShape(BasicShapeType.RECTANGLE) }
+                },
+                Action.of("Ellipse").apply{
+                    action = { canvasView.addBasicShape(BasicShapeType.OVAL) }
+                }
+            )
+        },
         Action.SPACER,
-        Action.group( "Zoom", buildGraphic = {null},
-            Action.of("Zoom In", accelerator = "meta+PLUS") { canvasView.context.scale *= 2 },
-            Action.of("Zoom Out", accelerator = "meta+MINUS") { canvasView.context.scale /= 2 },
-        ).apply {
-            textProperty.bind(canvasView.context.transformProperty.map {  "%.0f%%".format(it.mxx * 100) })
+        Action.group("Zoom").apply {
+            actions = listOf(
+                Action.of("Zoom In").apply {
+                    accelerator = "meta+PLUS"
+                    action = { canvasView.context.scale *= 2 }
+                },
+                Action.of("Zoom Out") .apply {
+                    accelerator = "meta+MINUS"
+                    action = { canvasView.context.scale /= 2 }
+                },
+            )
+            textProperty.bind(canvasView.context.transformProperty.map { "%.0f%%".format(it.mxx * 100) })
         }
     )
 

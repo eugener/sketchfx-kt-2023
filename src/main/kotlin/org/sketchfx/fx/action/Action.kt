@@ -13,35 +13,48 @@ import org.sketchfx.fx.Spacer
 
 interface Action {
     val textProperty: StringProperty
+    var text: String?
+        get() = textProperty.get()
+        set(value) = textProperty.set(value)
+
     val graphicProperty: ObjectProperty<Node?>
+
     val acceleratorProperty: StringProperty
+    var accelerator: String?
+        get() = acceleratorProperty.get()
+        set(value) = acceleratorProperty.set(value)
+
     val disabledProperty: BooleanProperty
-    fun execute()
+    var disabled: Boolean
+        get() = disabledProperty.get()
+        set(value) = disabledProperty.set(value)
+
+    var action: (() -> Unit)?
 
     fun asMenuItem(): MenuItem {
         return MenuItem().apply {
             textProperty().bind(textProperty)
             graphicProperty().bind(graphicProperty)
             acceleratorProperty().bind(acceleratorProperty.map { KeyCombination.keyCombination(it) })
-            setOnAction { execute() }
+            setOnAction { action?.invoke()}
         }
     }
 
     companion object{
 
         @JvmStatic
-        fun of(text: String?, buildGraphic: GraphicBuilder = { null }, accelerator: String? = null, action: () -> Unit = {}): Action {
-            return ActionBase(text, buildGraphic, accelerator, action)
+        fun of( text: String?, buildGraphic: GraphicBuilder = { null }): Action {
+            return ActionBase(text, buildGraphic)
         }
 
         @JvmStatic
-        fun group(text: String?, buildGraphic: GraphicBuilder = { null }, vararg children: Action): Action {
-            return ActionGroup(text, buildGraphic, *children)
+        fun group(buildGraphic: GraphicBuilder = { null }): ActionGroup {
+            return ActionGroupBase(null, buildGraphic)
         }
 
         @JvmStatic
-        fun group(text: String?, vararg children: Action): Action {
-            return ActionGroup(text, {null}, *children)
+        fun group(text: String?): ActionGroup {
+            return ActionGroupBase(text, {null})
         }
 
         @JvmStatic val SEPARATOR: Action = ActionBase(null, { null })
@@ -50,28 +63,33 @@ interface Action {
 
 }
 
+interface ActionGroup: Action {
+    var actions: List<Action>
+}
+
 typealias GraphicBuilder = () -> Node?
 
 
 
-private open class ActionBase(text: String?, buildGraphic: GraphicBuilder = { null }, accelerator: String? = null, private val action: () -> Unit = {}) :
-    Action {
+private open class ActionBase(text: String?, buildGraphic: GraphicBuilder = { null }) : Action {
     override val textProperty        = SimpleStringProperty(text)
     override val graphicProperty     = SimpleObjectProperty<Node?>(buildGraphic())
-    override val acceleratorProperty = SimpleStringProperty(accelerator)
+    override val acceleratorProperty = SimpleStringProperty()
     override val disabledProperty    = SimpleBooleanProperty(true)
-    override fun execute() = action()
+    override var action: (() -> Unit)? = null
 }
 
 
-private class ActionGroup(text: String?, buildGraphic: GraphicBuilder = { null }, vararg val children: Action) :
-    ActionBase(text, buildGraphic) {
+private class ActionGroupBase(text: String?, buildGraphic: GraphicBuilder = { null }) :
+    ActionBase(text, buildGraphic), ActionGroup {
+
+    override var actions: List<Action> = mutableListOf()
 
     fun asMenuButton(): MenuButton {
         return MenuButton().apply {
-            this.textProperty().bind(this@ActionGroup.textProperty)
-            graphicProperty().bind(this@ActionGroup.graphicProperty)
-            children.forEach { a ->
+            this.textProperty().bind(this@ActionGroupBase.textProperty)
+            graphicProperty().bind(this@ActionGroupBase.graphicProperty)
+            actions.forEach { a ->
                 items.add(a.asMenuItem())
             }
         }
@@ -79,11 +97,11 @@ private class ActionGroup(text: String?, buildGraphic: GraphicBuilder = { null }
 
     fun asMenu(): Menu {
         return Menu().apply {
-            this.textProperty().bind(this@ActionGroup.textProperty)
+            this.textProperty().bind(this@ActionGroupBase.textProperty)
 //            graphicProperty().bind(this@ActionGroup.graphicProperty)
-            children.forEach { a ->
+            actions.forEach { a ->
                 when (a) {
-                    is ActionGroup -> items.add( a.asMenu())
+                    is ActionGroupBase -> items.add( a.asMenu())
                     is ActionBase  -> items.add(a.asMenuItem())
                     Action.SEPARATOR -> items.add(SeparatorMenuItem())
                     else -> {
@@ -98,7 +116,7 @@ private class ActionGroup(text: String?, buildGraphic: GraphicBuilder = { null }
 fun List<Action>.asToolbar(): ToolBar {
     val nodes: List<Node> = this.map {
         when (it) {
-            is ActionGroup -> it.asMenuButton()
+            is ActionGroupBase -> it.asMenuButton()
 //            is Action -> it.asMenuItem()
             Action.SEPARATOR -> Separator()
             Action.SPACER -> Spacer.horizontal()
@@ -115,7 +133,7 @@ fun List<Action>.asToolbar(): ToolBar {
 fun List<Action>.asMenuBar(): MenuBar {
     val menus: List<Menu> = this.map {
         when (it) {
-            is ActionGroup -> it.asMenu()
+            is ActionGroupBase -> it.asMenu()
 //            is ActionBase -> it.asMenuItem()
 //            Action.SEPARATOR -> SeparatorMenuItem()
             else -> {
