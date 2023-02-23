@@ -1,3 +1,5 @@
+@import "common-theme.css";
+
 /* this is thin font*/
 @font-face {
     font-family: 'Inter Regular';
@@ -24,8 +26,12 @@
     -fx-font-size: 13;
     -fx-accent: #0D99FF;
     -fx-control-inner-background-alt: -fx-control-inner-background ;
-    -fx-icon-size: 1.5em;
-    -fx-icon-color: -fx-text-base-color;
+
+}
+
+.ikonli-font-icon {
+    /*-fx-icon-size: 18;*/
+    /*-fx-icon-color: #737373;*/
 }
 
 .status-bar {
@@ -51,9 +57,5 @@
     -fx-background-radius: 5;
 }
 
-/*https://yqnn.github.io/svg-path-editor/*/
-.menu-button > .arrow-button > .arrow,
-.split-menu-button > .arrow-button > .arrow {
-    -fx-shape: "M 1 1 L 5 5 L 9 1 L 8 0 L 5 3 L 2 0 Z";
-}
+
 

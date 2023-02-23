@@ -1,0 +1,5 @@
+/*https://yqnn.github.io/svg-path-editor/*/
+.menu-button > .arrow-button > .arrow,
+.split-menu-button > .arrow-button > .arrow {
+    -fx-shape: "M 1 1 L 5 5 L 9 1 L 8 0 L 5 3 L 2 0 Z";
+}
