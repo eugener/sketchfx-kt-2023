@@ -1,14 +1,18 @@
 package org.sketchfx.editor
 
 import javafx.geometry.BoundingBox
-import javafx.scene.control.*
-import javafx.scene.input.KeyCombination
+import javafx.scene.control.Button
+import javafx.scene.control.Label
+import javafx.scene.control.SplitPane
+import javafx.scene.control.ToolBar
 import javafx.scene.layout.BorderPane
 import org.sketchfx.canvas.CanvasModel
 import org.sketchfx.canvas.CanvasView
 import org.sketchfx.canvas.CanvasViewModel
 import org.sketchfx.fx.NodeExt.setupSceneLifecycle
 import org.sketchfx.fx.Spacer
+import org.sketchfx.fx.action.Action
+import org.sketchfx.fx.action.asToolbar
 import org.sketchfx.fx.bindingLifecycle
 import org.sketchfx.infra.Icons
 import org.sketchfx.shape.BasicShapeType
@@ -17,22 +21,12 @@ import kotlin.random.Random
 
 class EditorView( viewModel: EditorViewModel) : BorderPane() {
 
+    private val canvasView = CanvasView(viewModel)
+    private val shapeListView = ShapeListView(viewModel)
+
     private val status = Label("").apply {
         prefWidth = Double.MAX_VALUE
         styleClass.setAll("status-bar")
-    }
-
-    private val zoomMenu = MenuButton("Zoom").apply {
-        items.setAll(
-            MenuItem("Zoom In").apply {
-                setOnAction { canvasView.context.scale *= 2 }
-                accelerator = KeyCombination.keyCombination("meta+PLUS")
-          },
-            MenuItem("Zoom Out").apply {
-                setOnAction { canvasView.context.scale /= 2 }
-                accelerator = KeyCombination.keyCombination("meta+MINUS")
-            },
-        )
     }
 
     private val canvasToolBarLeft = ToolBar().apply {
@@ -42,22 +36,20 @@ class EditorView( viewModel: EditorViewModel) : BorderPane() {
         )
     }
 
-    private val canvasToolBarRight = ToolBar().apply {
-        items.setAll(
-            MenuButton().apply {
-                graphic = Icons.NEW_SHAPE.graphic()
-                BasicShapeType.values().forEach { shape ->
-                    items.add(MenuItem(shape.title()).apply {
-                        setOnAction { canvasView.addBasicShape(shape) }
-                    })
-                }
-            },
-            Spacer.horizontal(),
-            zoomMenu
-        )
-    }
-    private val canvasView = CanvasView(viewModel)
-    private val shapeListView = ShapeListView(viewModel)
+    private val toolbarActions: List<Action> = listOf(
+        Action.group(
+            null, buildGraphic = { Icons.NEW_SHAPE.graphic() },
+            Action.of("Rectangle") { canvasView.addBasicShape(BasicShapeType.RECTANGLE) },
+            Action.of("Ellipse"  ) { canvasView.addBasicShape(BasicShapeType.OVAL) },
+        ),
+        Action.SPACER,
+        Action.group( "Zoom", buildGraphic = {null},
+            Action.of("Zoom In", accelerator = "meta+PLUS") { canvasView.context.scale *= 2 },
+            Action.of("Zoom Out", accelerator = "meta+MINUS") { canvasView.context.scale /= 2 },
+        ).apply {
+            textProperty.bind(canvasView.context.transformProperty.map {  "%.0f%%".format(it.mxx * 100) })
+        }
+    )
 
     val undoAvailableProperty = canvasView.context.commandManager.undoAvailableProperty
     val redoAvailableProperty = canvasView.context.commandManager.redoAvailableProperty
@@ -69,7 +61,7 @@ class EditorView( viewModel: EditorViewModel) : BorderPane() {
             setDividerPositions(.2)
             items.setAll(
                 BorderPane(shapeListView, canvasToolBarLeft, null, null, null),
-                BorderPane(canvasView, canvasToolBarRight,null, null, null),
+                BorderPane(canvasView, toolbarActions.asToolbar(),null, null, null),
             )
         }
         bottom = status
@@ -83,7 +75,6 @@ class EditorView( viewModel: EditorViewModel) : BorderPane() {
     private fun updateStatus() {
         canvasView.context.transformProperty.get()?.run {
             status.text = "scale: %.2f; translate: (%.2f : %.2f)".format(mxx, tx, ty)
-            zoomMenu.text= "%.0f%%".format(mxx * 100)
         }
     }
 
