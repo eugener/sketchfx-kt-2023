@@ -12,12 +12,16 @@ import javafx.scene.input.KeyCombination
 import org.sketchfx.fx.Spacer
 
 interface Action {
+
     val textProperty: StringProperty
     var text: String?
         get() = textProperty.get()
         set(value) = textProperty.set(value)
 
     val graphicProperty: ObjectProperty<Node?>
+    var graphic: Node?
+        get() = graphicProperty.get()
+        set(value) = graphicProperty.set(value)
 
     val acceleratorProperty: StringProperty
     var accelerator: String?
@@ -43,22 +47,17 @@ interface Action {
     companion object{
 
         @JvmStatic
-        fun of( text: String?, buildGraphic: GraphicBuilder = { null }): Action {
-            return ActionBase(text, buildGraphic)
-        }
+        fun of( text: String?, buildGraphic: GraphicBuilder = { null }): Action = ActionImpl(text, buildGraphic)
 
         @JvmStatic
-        fun group(buildGraphic: GraphicBuilder = { null }): ActionGroup {
-            return ActionGroupBase(null, buildGraphic)
-        }
+        fun group(buildGraphic: GraphicBuilder): ActionGroup = ActionGroupImpl(null, buildGraphic)
 
         @JvmStatic
-        fun group(text: String?): ActionGroup {
-            return ActionGroupBase(text, {null})
-        }
+        fun group(text: String?): ActionGroup = ActionGroupImpl(text) { null }
 
-        @JvmStatic val SEPARATOR: Action = ActionBase(null, { null })
-        @JvmStatic val SPACER: Action = ActionBase(null, { null })
+        @JvmStatic val SEPARATOR: Action = ActionImpl(null) { null }
+
+        @JvmStatic val SPACER: Action = ActionImpl(null) { null }
     }
 
 }
@@ -67,11 +66,10 @@ interface ActionGroup: Action {
     var actions: List<Action>
 }
 
-typealias GraphicBuilder = () -> Node?
+private typealias GraphicBuilder = () -> Node?
 
 
-
-private open class ActionBase(text: String?, buildGraphic: GraphicBuilder = { null }) : Action {
+private open class ActionImpl(text: String?, buildGraphic: GraphicBuilder = { null }) : Action {
     override val textProperty        = SimpleStringProperty(text)
     override val graphicProperty     = SimpleObjectProperty<Node?>(buildGraphic())
     override val acceleratorProperty = SimpleStringProperty()
@@ -80,30 +78,28 @@ private open class ActionBase(text: String?, buildGraphic: GraphicBuilder = { nu
 }
 
 
-private class ActionGroupBase(text: String?, buildGraphic: GraphicBuilder = { null }) :
-    ActionBase(text, buildGraphic), ActionGroup {
+private class ActionGroupImpl(text: String?, buildGraphic: GraphicBuilder = { null }) :
+    ActionImpl(text, buildGraphic), ActionGroup {
 
     override var actions: List<Action> = mutableListOf()
 
     fun asMenuButton(): MenuButton {
         return MenuButton().apply {
-            this.textProperty().bind(this@ActionGroupBase.textProperty)
-            graphicProperty().bind(this@ActionGroupBase.graphicProperty)
-            actions.forEach { a ->
-                items.add(a.asMenuItem())
-            }
+            this.textProperty().bind(this@ActionGroupImpl.textProperty)
+            graphicProperty().bind(this@ActionGroupImpl.graphicProperty)
+            items.setAll( actions.map{a-> a.asMenuItem()})
         }
     }
 
     fun asMenu(): Menu {
         return Menu().apply {
-            this.textProperty().bind(this@ActionGroupBase.textProperty)
+            this.textProperty().bind(this@ActionGroupImpl.textProperty)
 //            graphicProperty().bind(this@ActionGroup.graphicProperty)
             actions.forEach { a ->
                 when (a) {
-                    is ActionGroupBase -> items.add( a.asMenu())
-                    is ActionBase  -> items.add(a.asMenuItem())
-                    Action.SEPARATOR -> items.add(SeparatorMenuItem())
+                    is ActionGroupImpl -> items.add( a.asMenu())
+                    is ActionImpl      -> items.add(a.asMenuItem())
+                    Action.SEPARATOR   -> items.add(SeparatorMenuItem())
                     else -> {
                         throw IllegalArgumentException("Unknown action type: ${a.javaClass}")
                     }
@@ -114,34 +110,34 @@ private class ActionGroupBase(text: String?, buildGraphic: GraphicBuilder = { nu
 }
 
 fun List<Action>.asToolbar(): ToolBar {
-    val nodes: List<Node> = this.map {
-        when (it) {
-            is ActionGroupBase -> it.asMenuButton()
+    return ToolBar().apply {
+        val nodes: List<Node> = this@asToolbar.map {
+            when (it) {
+                is ActionGroupImpl -> it.asMenuButton()
 //            is Action -> it.asMenuItem()
-            Action.SEPARATOR -> Separator()
-            Action.SPACER -> Spacer.horizontal()
-            else -> {
-                throw IllegalArgumentException("Unknown action type: ${it.javaClass}")
+                Action.SEPARATOR -> Separator()
+                Action.SPACER -> Spacer.horizontal()
+                else -> {
+                    throw IllegalArgumentException("Unknown action type: ${it.javaClass}")
+                }
             }
         }
-    }
-    return ToolBar().apply {
         items.setAll(nodes)
     }
 }
 
 fun List<Action>.asMenuBar(): MenuBar {
-    val menus: List<Menu> = this.map {
-        when (it) {
-            is ActionGroupBase -> it.asMenu()
+    return MenuBar().apply {
+        val menus: List<Menu> = this@asMenuBar.map { a ->
+            when (a) {
+                is ActionGroupImpl -> a.asMenu()
 //            is ActionBase -> it.asMenuItem()
 //            Action.SEPARATOR -> SeparatorMenuItem()
-            else -> {
-                throw IllegalArgumentException("Unknown action type: ${it.javaClass}")
+                else -> {
+                    throw IllegalArgumentException("Unknown action type: ${a.javaClass}")
+                }
             }
         }
-    }
-    return MenuBar().apply {
         getMenus().addAll(menus)
     }
 }
