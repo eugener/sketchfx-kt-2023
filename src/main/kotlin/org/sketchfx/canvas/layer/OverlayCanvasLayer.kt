@@ -22,14 +22,6 @@ class OverlayCanvasLayer(private val context: CanvasViewModel): CanvasLayer() {
         isMouseTransparent = true
     }
 
-//    override fun onSceneSet() {
-//        bindings.forEach(Binder::bind)
-//    }
-//
-//    override fun onSceneUnset() {
-//        bindings.forEach(Binder::unbind)
-//    }
-
     private val selectionBandHandler = ChangeListener{_, _, bounds ->
         if (bounds != null) {
             bandGroup.children.setAll(Shape.selectionBand(bounds, context))

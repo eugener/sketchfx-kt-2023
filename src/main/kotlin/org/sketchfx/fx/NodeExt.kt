@@ -9,6 +9,8 @@ object NodeExt {
 
     private const val clipperId = "clipper"
 
+    // Enables or disables auto clipping for the node.
+    // When enabled, the node will be clipped to its layout bounds.
     var Node.autoClipping: Boolean
         get() = properties.containsKey(clipperId)
         set(enable) {
@@ -25,6 +27,7 @@ object NodeExt {
                     @Suppress("UNCHECKED_CAST")
                     layoutBoundsProperty().removeListener(this as ChangeListener<Bounds>)
                     clip = null
+                    properties.remove(clipperId)
                 }
             }
         }
@@ -38,6 +41,7 @@ object NodeExt {
         }
     }
 
+    // Sets up a collection of bindings that will be bound to the scene when the node is added to a scene and unbound when removed from a scene.
     fun Node.setupSceneLifecycle( vararg bindingLifecycles: BindingLifecycle) {
         setupSceneLifecycle(bindingLifecycles.toList())
     }
