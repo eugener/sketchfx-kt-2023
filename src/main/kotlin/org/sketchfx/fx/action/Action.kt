@@ -40,6 +40,16 @@ interface Action {
             textProperty().bind(textProperty)
             graphicProperty().bind(graphicProperty)
             acceleratorProperty().bind(acceleratorProperty.map { KeyCombination.keyCombination(it) })
+            disableProperty().bind(disabledProperty)
+            setOnAction { action?.invoke()}
+        }
+    }
+
+    fun asButton(): Button {
+        return Button().apply {
+            textProperty().bind(textProperty)
+            graphicProperty().bind(graphicProperty)
+            disableProperty().bind(disabledProperty)
             setOnAction { action?.invoke()}
         }
     }
@@ -47,7 +57,7 @@ interface Action {
     companion object{
 
         @JvmStatic
-        fun of( text: String?, buildGraphic: GraphicBuilder = { null }): Action = ActionImpl(text, buildGraphic)
+        fun of( text: String? = null, buildGraphic: GraphicBuilder = { null }): Action = ActionImpl(text, buildGraphic)
 
         @JvmStatic
         fun group(buildGraphic: GraphicBuilder): ActionGroup = ActionGroupImpl(null, buildGraphic)
@@ -73,7 +83,7 @@ private open class ActionImpl(text: String?, buildGraphic: GraphicBuilder = { nu
     override val textProperty        = SimpleStringProperty(text)
     override val graphicProperty     = SimpleObjectProperty<Node?>(buildGraphic())
     override val acceleratorProperty = SimpleStringProperty()
-    override val disabledProperty    = SimpleBooleanProperty(true)
+    override val disabledProperty    = SimpleBooleanProperty(false)
     override var action: (() -> Unit)? = null
 }
 
@@ -87,6 +97,7 @@ private class ActionGroupImpl(text: String?, buildGraphic: GraphicBuilder = { nu
         return MenuButton().apply {
             this.textProperty().bind(this@ActionGroupImpl.textProperty)
             graphicProperty().bind(this@ActionGroupImpl.graphicProperty)
+            disableProperty().bind(disabledProperty)
             items.setAll( actions.map{a-> a.asMenuItem()})
         }
     }
@@ -95,13 +106,13 @@ private class ActionGroupImpl(text: String?, buildGraphic: GraphicBuilder = { nu
         return Menu().apply {
             this.textProperty().bind(this@ActionGroupImpl.textProperty)
 //            graphicProperty().bind(this@ActionGroup.graphicProperty)
+            disableProperty().bind(disabledProperty)
             actions.forEach { a ->
                 when (a) {
-                    is ActionGroupImpl -> items.add( a.asMenu())
-                    is ActionImpl      -> items.add(a.asMenuItem())
                     Action.SEPARATOR   -> items.add(SeparatorMenuItem())
+                    is ActionGroupImpl -> items.add( a.asMenu())
                     else -> {
-                        throw IllegalArgumentException("Unknown action type: ${a.javaClass}")
+                        items.add(a.asMenuItem())
                     }
                 }
             }
@@ -113,12 +124,11 @@ fun List<Action>.asToolbar(): ToolBar {
     return ToolBar().apply {
         val nodes: List<Node> = this@asToolbar.map {
             when (it) {
-                is ActionGroupImpl -> it.asMenuButton()
-//            is Action -> it.asMenuItem()
                 Action.SEPARATOR -> Separator()
                 Action.SPACER -> Spacer.horizontal()
+                is ActionGroupImpl -> it.asMenuButton()
                 else -> {
-                    throw IllegalArgumentException("Unknown action type: ${it.javaClass}")
+                    it.asButton()
                 }
             }
         }
