@@ -3,3 +3,7 @@
 .split-menu-button > .arrow-button > .arrow {
     -fx-shape: "M 1 1 L 5 5 L 9 1 L 8 0 L 5 3 L 2 0 Z";
 }
+
+.split-pane > .split-pane-divider {
+    -fx-padding: 0 .75 0 .75;
+}
