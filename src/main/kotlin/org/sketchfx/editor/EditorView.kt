@@ -73,7 +73,7 @@ class EditorView( viewModel: EditorViewModel) : BorderPane() {
             setDividerPositions(.2)
             items.setAll(
                 BorderPane(shapeListView, canvasToolBarLeft, null, null, null),
-                BorderPane(canvasView, toolbarActions.asToolbar(),null, null, null),
+                BorderPane(canvasView, toolbarActions.asToolbar(),ShapePropertyPane(viewModel), null, null),
             )
         }
         bottom = status

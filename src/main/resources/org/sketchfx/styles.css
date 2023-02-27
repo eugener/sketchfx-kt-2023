@@ -31,7 +31,13 @@
 
 .ikonli-font-icon {
     /*-fx-icon-size: 18;*/
-    /*-fx-icon-color: #737373;*/
+    -fx-icon-color: #6D6A63;
+}
+
+.small .ikonli-font-icon,
+.small .tool-bar .button {
+    -fx-padding: 3 5 3 5;
+    -fx-icon-size: 12;
 }
 
 .status-bar {
@@ -50,12 +56,21 @@
 }
 
 .shape-size-label {
-    -fx-font-size: 12;
+    -fx-font-size: 14;
     -fx-background-color: -fx-accent;
     -fx-text-fill: white;
     -fx-padding: 3 7 3 7;
     -fx-background-radius: 5;
 }
+
+.shape-property-pane {
+    -fx-border-width: 0 0 0 1;
+    -fx-border-color: lightgrey;
+}
+
+/*.shape-property-pane .tool-bar .button {*/
+/*    -fx-padding: 5;*/
+/*}*/
 
 
 
