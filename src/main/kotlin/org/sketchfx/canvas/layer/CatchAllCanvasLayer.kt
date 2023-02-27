@@ -41,10 +41,19 @@ class CatchAllCanvasLayer(private val context: CanvasViewModel): CanvasLayer() {
 
         }
 
-        override fun onDragCancel() {
-            when(context.mouseDragMode) {
-                MouseDragMode.SELECTION -> context.selection.clear()
-                MouseDragMode.BASIC_SHAPE_ADD -> context.mouseDragMode = MouseDragMode.SELECTION
+        override fun onDragCancel(): Boolean {
+            return when(context.mouseDragMode) {
+                MouseDragMode.SELECTION -> {
+                    context.selection.clear()
+                    context.selectionBand = null // hide selection band
+                    true
+                }
+
+                MouseDragMode.BASIC_SHAPE_ADD -> {
+                    context.mouseDragMode = MouseDragMode.SELECTION
+                    context.newShapeAvatar = null // hide new shape avatar
+                    true
+                }
             }
 
         }

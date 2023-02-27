@@ -18,6 +18,7 @@ private typealias KeyEventHandler = EventHandler<KeyEvent>
 
 abstract class MouseDragSupport(private val base: Node, private val context: CanvasViewModel): BindingLifecycle {
 
+    private var dragInProgress = false
     private var startPos: Point2D? = null
     private var prevPos: Point2D? = null
     private var nextPos: Point2D? = null
@@ -26,35 +27,43 @@ abstract class MouseDragSupport(private val base: Node, private val context: Can
         when (e.eventType) {
 
             MouseEvent.MOUSE_PRESSED -> {
-                startPos = getPos(e)
-                prevPos = startPos
-                nextPos = startPos
-                base.requestFocus() // to receive key events
-                onDragStart()
-                e.consume()
+                if (e.isPrimaryButtonDown) {
+                    startPos = getPos(e)
+                    prevPos = startPos
+                    nextPos = startPos
+                    base.requestFocus() // to receive key events
+                    dragInProgress = true
+                    onDragStart()
+                    e.consume()
+                }
             }
 
             MouseEvent.MOUSE_DRAGGED -> {
-                startPos?.let {
-                    val pos = getPos(e)
-                    nextPos = pos
-                    onDrag(pos,true)
-                    prevPos = nextPos
-                    e.consume()
+                if (dragInProgress) {
+                    startPos?.let {
+                        val pos = getPos(e)
+                        nextPos = pos
+                        onDrag(pos, true)
+                        prevPos = nextPos
+                        e.consume()
+                    }
                 }
             }
 
             MouseEvent.MOUSE_RELEASED -> {
-                startPos?.let {
-                    val pos = getPos(e)
-                    nextPos = pos
-                    onDrag(pos,false)
-                    prevPos = nextPos
-                    e.consume()
+                if (dragInProgress) {
+                    startPos?.let {
+                        val pos = getPos(e)
+                        nextPos = pos
+                        onDrag(pos, false)
+                        prevPos = nextPos
+                        e.consume()
+                    }
+                    dragInProgress = false
+                    startPos = null
+                    prevPos = null
+                    nextPos = null
                 }
-                startPos = null
-                prevPos = null
-                nextPos = null
             }
         }
 
@@ -62,7 +71,7 @@ abstract class MouseDragSupport(private val base: Node, private val context: Can
 
     private val keyPressHandler = KeyEventHandler { e ->
         if (e.code == KeyCode.ESCAPE) {
-            onDragCancel()
+            dragInProgress = !onDragCancel()
             e.consume()
         }
     }
@@ -103,8 +112,9 @@ abstract class MouseDragSupport(private val base: Node, private val context: Can
 
     /**
      * Override this method to handle mouse drag cancel event
+     * @return true if the drag has to be cancelled, false otherwise
      */
-    open fun onDragCancel() {}
+    open fun onDragCancel(): Boolean {return false}
 
     protected fun currentDelta(): Point2D = nextPos!!.subtract(prevPos).multiply(context.scale)
     protected fun totalDelta(): Point2D = nextPos!!.subtract(startPos).multiply(context.scale)
