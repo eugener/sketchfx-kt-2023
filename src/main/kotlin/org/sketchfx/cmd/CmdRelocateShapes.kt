@@ -4,7 +4,13 @@ import org.sketchfx.canvas.CanvasViewModel
 import org.sketchfx.infra.Command
 import org.sketchfx.shape.Shape
 
-data class CmdRelocateShapes(val shapes: Collection<Shape>, val deltaX: Double, val deltaY: Double): Command<CanvasViewModel> {
+
+class CmdRelocateShapes(
+    originalShapes: Collection<Shape>,
+    private val deltaX: Double,
+    private val deltaY: Double): Command<CanvasViewModel> {
+
+    private val shapes = originalShapes.toList()
 
     override fun run(context: CanvasViewModel) = relocateShapes(deltaX, deltaY)
 

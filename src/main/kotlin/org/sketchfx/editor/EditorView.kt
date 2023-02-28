@@ -22,7 +22,8 @@ import kotlin.random.Random
 class EditorView( viewModel: EditorViewModel) : BorderPane() {
 
     private val canvasView = CanvasView(viewModel)
-    private val shapeListView = ShapeListView(viewModel)
+//    private val shapeListView = ShapeListView(viewModel)
+    private val shapeTreeView = ShapeTreeView(viewModel)
 
     private val status = Label("").apply {
         prefWidth = Double.MAX_VALUE
@@ -72,7 +73,7 @@ class EditorView( viewModel: EditorViewModel) : BorderPane() {
         center = SplitPane().apply {
             setDividerPositions(.2)
             items.setAll(
-                BorderPane(shapeListView, canvasToolBarLeft, null, null, null),
+                BorderPane(shapeTreeView, canvasToolBarLeft, null, null, null),
                 BorderPane(canvasView, toolbarActions.asToolbar(),ShapePropertyPane(viewModel), null, null),
             )
         }

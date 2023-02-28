@@ -4,15 +4,14 @@ import javafx.beans.binding.Bindings
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.ObservableList
-import javafx.geometry.Bounds
-import javafx.geometry.Point2D
+import javafx.geometry.*
 import javafx.scene.transform.Scale
 import javafx.scene.transform.Transform
 import javafx.scene.transform.Translate
+import org.sketchfx.cmd.CmdAlignShapes
 import org.sketchfx.cmd.CmdRelocateShapes
 import org.sketchfx.fx.delegate
 import org.sketchfx.infra.CommandManager
-import org.sketchfx.infra.EventBus
 import org.sketchfx.infra.SelectionModel
 import org.sketchfx.shape.BasicShapeType
 import org.sketchfx.shape.Shape
@@ -111,6 +110,10 @@ open class CanvasViewModel(private val model: CanvasModel) {
         } else {
             commandManager.add(cmd)
         }
+    }
+
+    fun alignSelection(alignment: Alignment ) {
+        commandManager.execute( CmdAlignShapes(selection.items(), alignment))
     }
 
 
