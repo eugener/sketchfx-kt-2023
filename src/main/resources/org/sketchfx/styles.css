@@ -37,7 +37,7 @@
 .small .ikonli-font-icon,
 .small .tool-bar .button {
     -fx-padding: 3 5 3 5;
-    -fx-icon-size: 12;
+    -fx-icon-size: 14;
 }
 
 .status-bar {
