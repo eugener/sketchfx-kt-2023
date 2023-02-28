@@ -7,6 +7,7 @@ import kotlin.math.min
 
 object BoundsExt {
 
+    // Returns a new bounds that is the union of this bounds and the other bounds.
     fun Bounds.union(other: Bounds?): Bounds {
         if (other == null) return this
         val minX = min(this.minX, other.minX)

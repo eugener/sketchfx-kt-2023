@@ -7,21 +7,13 @@ import org.sketchfx.canvas.CanvasViewModel
 import org.sketchfx.fx.action.Action
 import org.sketchfx.fx.action.asToolbar
 import org.sketchfx.infra.Icons
-import org.sketchfx.shape.Shape
 
 class ShapePropertyPane(private val viewModel: CanvasViewModel) : VBox() {
 
     private val sizeBinding = Bindings.size(viewModel.selection.items())
     private val alignmentBinding = Bindings.lessThan(sizeBinding, 2)
 
-    private val alignmentActions = listOf(
-        alignAction(Icons.ALIGN_LEFT){ _ -> viewModel.alignSelection(Alignment.LEFT) },
-        alignAction(Icons.ALIGN_CENTER){},
-        alignAction(Icons.ALIGN_RIGHT){_ -> viewModel.alignSelection(Alignment.RIGHT)},
-        alignAction(Icons.ALIGN_TOP){},
-        alignAction(Icons.ALIGN_MIDDLE){},
-        alignAction(Icons.ALIGN_BOTTOM){}
-    )
+    private val alignmentActions = Alignment.values().map(::alignAction)
 
     init {
         styleClass.addAll("shape-property-pane", "small")
@@ -30,12 +22,21 @@ class ShapePropertyPane(private val viewModel: CanvasViewModel) : VBox() {
         )
     }
 
-    private fun alignAction( icon: Icons, align: (List<Shape>) -> Unit): Action {
-        return Action.of(buildGraphic = { icon.graphic() }).apply {
+    private fun alignAction(alignment: Alignment): Action {
+        return Action.of(buildGraphic = { alignment.getIcon().graphic() }).apply {
             disabledProperty.bind(alignmentBinding)
-            action = {
-                align(viewModel.selection.items())
-            }
+            action = { viewModel.alignSelection(alignment) }
+        }
+    }
+
+    private fun Alignment.getIcon(): Icons {
+        return when (this) {
+            Alignment.LEFT   -> Icons.ALIGN_LEFT
+            Alignment.CENTER -> Icons.ALIGN_CENTER
+            Alignment.RIGHT  -> Icons.ALIGN_RIGHT
+            Alignment.TOP    -> Icons.ALIGN_TOP
+            Alignment.MIDDLE -> Icons.ALIGN_MIDDLE
+            Alignment.BOTTOM -> Icons.ALIGN_BOTTOM
         }
     }
 

@@ -3,6 +3,7 @@ package org.sketchfx.cmd
 import javafx.geometry.Point2D
 import org.sketchfx.canvas.Alignment
 import org.sketchfx.canvas.CanvasViewModel
+import org.sketchfx.fx.BoundsExt.union
 import org.sketchfx.infra.Command
 import org.sketchfx.shape.Shape
 
@@ -23,14 +24,33 @@ class CmdAlignShapes(
 
         when (alignment) {
             Alignment.LEFT -> {
-                val x = shapes.minOfOrNull { it.boundsInParent.minX } ?: return
-                shapes.forEach {it.relocate(x, it.boundsInParent.minY)}
+                val minX = shapes.minOf { it.boundsInParent.minX }
+                shapes.forEach {it.relocate(minX, it.boundsInParent.minY)}
             }
             Alignment.RIGHT -> {
-                val x = shapes.maxOfOrNull { it.boundsInParent.maxX } ?: return
-                shapes.forEach {it.relocate(x-it.boundsInParent.width, it.boundsInParent.minY)}
+                val maxX = shapes.maxOf { it.boundsInParent.maxX }
+                shapes.forEach {it.relocate(maxX-it.boundsInParent.width, it.boundsInParent.minY)}
             }
-            else -> return
+            Alignment.CENTER -> {
+                val centerX = shapes.map{it.boundsInParent}.reduce { b1, b2 -> b1.union(b2)}.centerX
+                shapes.forEach {
+                    it.relocate(centerX - it.boundsInParent.width/2, it.boundsInParent.minY )
+                }
+            }
+            Alignment.TOP -> {
+                val minY = shapes.minOf { it.boundsInParent.minY }
+                shapes.forEach {it.relocate(it.boundsInParent.minX, minY)}
+            }
+            Alignment.BOTTOM -> {
+                val maxY = shapes.maxOf { it.boundsInParent.maxY }
+                shapes.forEach {it.relocate(it.boundsInParent.minX, maxY-it.boundsInParent.height)}
+            }
+            Alignment.MIDDLE -> {
+                val centerY = shapes.map{it.boundsInParent}.reduce { b1, b2 -> b1.union(b2)}.centerY
+                shapes.forEach {
+                    it.relocate(it.boundsInParent.minX, centerY - it.boundsInParent.height/2 )
+                }
+            }
         }
     }
 
