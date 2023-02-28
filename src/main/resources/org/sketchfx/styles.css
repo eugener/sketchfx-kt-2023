@@ -35,9 +35,11 @@
 }
 
 .small .ikonli-font-icon,
-.small .tool-bar .button {
+.small .tool-bar .button,
+.small .text-field {
     -fx-padding: 3 5 3 5;
     -fx-icon-size: 14;
+    -fx-font-size: .85em;
 }
 
 .status-bar {
@@ -68,9 +70,14 @@
     -fx-border-color: lightgrey;
 }
 
-/*.shape-property-pane .tool-bar .button {*/
-/*    -fx-padding: 5;*/
-/*}*/
+.shape-property-pane > .sub-pane {
+    -fx-padding: 5;
+    -fx-spacing: 5;
+}
+
+.prop-field {
+    -fx-max-width: 75;
+}
 
 
 

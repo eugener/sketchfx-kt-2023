@@ -7,3 +7,7 @@
 .split-pane > .split-pane-divider {
     -fx-padding: 0 .75 0 .75;
 }
+
+.text-field {
+    -fx-background-color: #DCDCDCDC;
+}
