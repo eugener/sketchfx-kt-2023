@@ -2,15 +2,17 @@ package org.sketchfx.editor
 
 import javafx.beans.InvalidationListener
 import javafx.beans.binding.Bindings
+import javafx.beans.property.SimpleObjectProperty
+import javafx.beans.value.ChangeListener
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
-import javafx.util.StringConverter
 import org.sketchfx.canvas.Alignment
 import org.sketchfx.canvas.CanvasViewModel
 import org.sketchfx.fx.IntTextField
 import org.sketchfx.fx.action.Action
 import org.sketchfx.fx.action.asToolbar
 import org.sketchfx.infra.Icons
+import org.sketchfx.shape.Shape
 
 
 class ShapePropertyPane(private val viewModel: CanvasViewModel) : VBox() {
@@ -20,16 +22,19 @@ class ShapePropertyPane(private val viewModel: CanvasViewModel) : VBox() {
     private val notSingleShape = Bindings.notEqual(1, sizeBinding)
 
     private val alignmentActions = Alignment.values().map(::alignAction)
+
     private val xPosTextField = IntTextField().apply {
         styleClass.add("prop-field")
         disableProperty().bind(notSingleShape)
     }
+
     private val yPosTextField = IntTextField().apply{
         styleClass.add("prop-field")
         disableProperty().bind(notSingleShape)
     }
 
-    private val doubleConverter = DoubleStrConverter()
+    private val boundShape = SimpleObjectProperty<Shape?>()
+
 
     init {
         styleClass.addAll("shape-property-pane", "small")
@@ -40,13 +45,19 @@ class ShapePropertyPane(private val viewModel: CanvasViewModel) : VBox() {
             }
         )
 
-        viewModel.selection.items().addListener( InvalidationListener { _ ->
-            val selectedShapes = viewModel.selection.items()
-            if (selectedShapes.size >= 1) {
-                val shape = selectedShapes[0]
-                xPosTextField.textProperty().bindBidirectional(shape.layoutXProperty(), doubleConverter )
-                yPosTextField.textProperty().bindBidirectional(shape.layoutYProperty(), doubleConverter )
+        boundShape.addListener { _, oldShape, newShape ->
+            oldShape?.let {
+                xPosTextField.valueProperty.unbindBidirectional(it.layoutXProperty())
+                yPosTextField.valueProperty.unbindBidirectional(it.layoutYProperty())
             }
+            newShape?.let {
+                xPosTextField.valueProperty.bindBidirectional(it.layoutXProperty())
+                yPosTextField.valueProperty.bindBidirectional(it.layoutYProperty())
+            }
+        }
+
+        viewModel.selection.items().addListener( InvalidationListener { _ ->
+            boundShape.set(viewModel.selection.items().firstOrNull())
         })
     }
 
@@ -70,15 +81,5 @@ class ShapePropertyPane(private val viewModel: CanvasViewModel) : VBox() {
 
 }
 
-class DoubleStrConverter: StringConverter<Number>() {
 
-    override fun toString(value: Number?): String {
-        return value?.toInt().toString()
-    }
-
-    override fun fromString(value: String?): Double {
-        return value?.toInt()?.toDouble() ?: 0.0
-    }
-
-}
 

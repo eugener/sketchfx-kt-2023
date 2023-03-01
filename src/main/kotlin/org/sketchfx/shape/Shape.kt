@@ -104,14 +104,13 @@ data class Shape(
             }
         }
 
-
-
     }
 
     var name        : String by SimpleStringProperty("").delegate()
     var fill        : Paint  by AttrProperty<Paint>(defaultFill).delegate()
     var stroke      : Paint  by AttrProperty<Paint>(defaultStroke).delegate()
     var strokeWidth : Double by AttrDoubleProperty(1.0).delegate()
+
 
     // shape dragging
     private val dragSupport = object: MouseDragSupport(this, context) {

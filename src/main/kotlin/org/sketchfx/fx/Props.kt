@@ -1,6 +1,7 @@
 package org.sketchfx.fx
 
 import javafx.beans.property.DoubleProperty
+import javafx.beans.property.IntegerProperty
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.StringProperty
 import kotlin.reflect.KProperty
@@ -36,6 +37,22 @@ class DoublePropertyDelegate(private val fxprop: DoubleProperty) {
 
 fun DoubleProperty.delegate(): DoublePropertyDelegate {
     return DoublePropertyDelegate(this)
+}
+
+//Integer property delegate
+class IntegerPropertyDelegate(private val fxprop: IntegerProperty) {
+
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): Int {
+        return fxprop.get()
+    }
+
+    operator fun setValue(thisRef: Any?, property: KProperty<*>, value: Int) {
+        fxprop.set(value)
+    }
+}
+
+fun IntegerProperty.delegate(): IntegerPropertyDelegate {
+    return IntegerPropertyDelegate(this)
 }
 
 
