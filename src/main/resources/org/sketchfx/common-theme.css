@@ -1,7 +1,13 @@
 /*https://yqnn.github.io/svg-path-editor/*/
+
+.root {
+    -sk-arrow-down : "M 1 1 L 5 5 L 9 1 L 8 0 L 5 3 L 2 0 Z";
+    -sk-arrow-right: "M 0 0 L -3 3 L -2 4 L 2 0 L -2 -4 L -3 -3 L 0 0";
+}
+
 .menu-button > .arrow-button > .arrow,
 .split-menu-button > .arrow-button > .arrow {
-    -fx-shape: "M 1 1 L 5 5 L 9 1 L 8 0 L 5 3 L 2 0 Z";
+    -fx-shape: -sk-arrow-down;
 }
 
 .split-pane > .split-pane-divider {
