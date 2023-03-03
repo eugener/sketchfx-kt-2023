@@ -59,7 +59,7 @@ class ShapeBoundsPane: GridPane() {
         }
 
         // update field values when shape bounds change
-        val shapeBoundsUpdater = InvalidationListener{ _ ->
+        val updateShapeBounds = InvalidationListener{ _ ->
             //TODO convert to a command and add to undo stack
             boundShape?.resizeRelocate(
                 xPosTextField.value.toDouble(),
@@ -68,10 +68,10 @@ class ShapeBoundsPane: GridPane() {
                 hPosTextField.value.toDouble()
             )
         }
-        xPosTextField.valueProperty.addListener(shapeBoundsUpdater)
-        yPosTextField.valueProperty.addListener(shapeBoundsUpdater)
-        wPosTextField.valueProperty.addListener(shapeBoundsUpdater)
-        hPosTextField.valueProperty.addListener(shapeBoundsUpdater)
+        xPosTextField.valueProperty.addListener(updateShapeBounds)
+        yPosTextField.valueProperty.addListener(updateShapeBounds)
+        wPosTextField.valueProperty.addListener(updateShapeBounds)
+        hPosTextField.valueProperty.addListener(updateShapeBounds)
 
     }
 
