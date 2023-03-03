@@ -1,14 +1,14 @@
 package org.sketchfx.fx
 
+import atlantafx.base.controls.CustomTextField
 import javafx.beans.binding.Bindings
 import javafx.beans.property.IntegerProperty
 import javafx.beans.property.SimpleIntegerProperty
-import javafx.scene.control.TextField
 import javafx.scene.control.TextFormatter
 import javafx.util.StringConverter
 import java.util.function.UnaryOperator
 
-class IntTextField: TextField() {
+class IntTextField: CustomTextField() {
 
     companion object {
 
@@ -45,7 +45,11 @@ class IntStrConverter: StringConverter<Number>() {
     }
 
     override fun fromString(value: String?): Int {
-        return value?.toInt() ?: 0
+        return try {
+            value?.toInt() ?: 0
+        } catch (e: NumberFormatException) {
+            0
+        }
     }
 
 }

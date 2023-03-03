@@ -73,11 +73,14 @@
 .shape-property-pane > .sub-pane {
     -fx-padding: 5;
     -fx-spacing: 5;
+    -fx-hgap: 5;
+    -fx-vgap: 5;
 }
 
 .prop-field {
-    -fx-max-width: 75;
+    -fx-max-width: 85;
 }
+
 
 
 

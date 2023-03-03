@@ -145,6 +145,13 @@ data class Shape(
         }
     }
 
+    override fun resize(width: Double, height: Double) {
+//        super.resize(width, height)
+        children.forEach{ it.resize(width, height) }
+//        children.forEach(::updateAttrs)
+    }
+
+
     private fun updateAttrs(node: Node): Node {
         if (node is javafx.scene.shape.Shape) {
             node.fill   = fill

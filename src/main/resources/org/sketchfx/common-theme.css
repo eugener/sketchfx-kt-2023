@@ -14,6 +14,6 @@
     -fx-padding: 0 .75 0 .75;
 }
 
-.text-field {
-    -fx-background-color: #DCDCDCDC;
-}
+/*.text-field {*/
+/*    !*-fx-background-color: #DCDCDCDC;*!*/
+/*}*/
