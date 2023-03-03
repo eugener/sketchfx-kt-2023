@@ -26,8 +26,7 @@ class SelectionBox(selection: Collection<Shape>, context: CanvasViewModel) : Gro
         children.setAll((selectionShapes + Shape.selectionBounds(selectionBounds!!, context)))
 
         children.addAll(
-            SelectionHandleType.values().map {
-                SelectionHandle(selectionBounds, it, context) }
+            SelectionHandleType.values().map { SelectionHandle(selectionBounds, it, context) }
         )
     }
 
