@@ -17,9 +17,6 @@ class CmdRelocateShapes(
     override fun undo(context: CanvasViewModel): Unit = relocateShapes(-deltaX, -deltaY)
 
     private fun relocateShapes( x: Double, y: Double)  {
-        shapes.forEach { s ->
-            s.layoutX += x
-            s.layoutY += y
-        }
+        shapes.forEach { it.relocate(it.boundsInParent.minX + x, it.boundsInParent.minY + y) }
     }
 }
