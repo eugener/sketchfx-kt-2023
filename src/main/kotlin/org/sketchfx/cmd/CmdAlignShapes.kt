@@ -16,7 +16,7 @@ class CmdAlignShapes(
 
     override fun run(context: CanvasViewModel)  {
         if (shapes.size < 2 ) {
-            throw IllegalArgumentException("Selection must contain at least 2 shapes")
+            throw IllegalArgumentException(" For alignment, selection must contain at least 2 shapes")
         }
 
         oldPositions.clear()

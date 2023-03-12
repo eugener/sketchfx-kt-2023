@@ -95,7 +95,7 @@ data class Shape(
             }
         }
 
-        fun selectionBounds( bounds: Bounds, context: CanvasViewModel): Node {
+        fun selectionBounds( bounds: Bounds, context: CanvasViewModel): Rectangle {
             return Rectangle( bounds.minX, bounds.minY, bounds.width, bounds.height ).apply {
                 fill = selectionFill
                 stroke = selectionStroke
@@ -129,6 +129,7 @@ data class Shape(
         )
     }
 
+
     override fun toString(): String {
        // return "$name :   $sid"
         return name
@@ -146,9 +147,21 @@ data class Shape(
     }
 
     override fun resize(width: Double, height: Double) {
-//        super.resize(width, height)
-        children.forEach{ it.resize(width, height) }
-//        children.forEach(::updateAttrs)
+        children.forEach { //it.resize(width, height) }
+            when(it) {
+                is Rectangle -> {
+                    it.width = width
+                    it.height = height
+                }
+                is Ellipse -> {
+                    it.radiusX = width / 2
+                    it.radiusY = height / 2
+                }
+                else -> {
+                    it.resize(width, height)
+                }
+            }
+        }
     }
 
 

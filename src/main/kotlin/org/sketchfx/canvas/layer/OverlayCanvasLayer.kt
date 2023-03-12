@@ -1,6 +1,5 @@
 package org.sketchfx.canvas.layer
 
-import javafx.beans.InvalidationListener
 import javafx.beans.value.ChangeListener
 import javafx.scene.Group
 import javafx.scene.control.Label
@@ -14,8 +13,10 @@ import org.sketchfx.shape.Shape
 class OverlayCanvasLayer(private val context: CanvasViewModel): CanvasLayer() {
 
     private val hoverGroup = Group()
-    private val selectionGroup = Group()
     private val bandGroup = Group()
+
+    // selection box is updated automatically on selection model changes
+    private val selectionBox = SelectionBox(context)
 
     private val sizeLabel = Label().apply {
         styleClass.add("shape-size-label")
@@ -40,9 +41,6 @@ class OverlayCanvasLayer(private val context: CanvasViewModel): CanvasLayer() {
             hideHover()
         }
     }
-    private val selectionChangeHandler = InvalidationListener {
-        showSelection(context.selection.items())
-    }
 
     private val newShapeAvatarHandler = ChangeListener<NewShapeAvatar?> { _, _, shapeAvatar ->
         if (shapeAvatar != null) {
@@ -59,12 +57,12 @@ class OverlayCanvasLayer(private val context: CanvasViewModel): CanvasLayer() {
     }
 
     init {
-        this.group.children.addAll(hoverGroup, selectionGroup, bandGroup)
+        this.group.children.addAll(hoverGroup, bandGroup, selectionBox)
         setupSceneLifecycle(
             context.hoveredShapeProperty.bindingLifecycle(shapeHoverHandler),
-            context.selection.items().bindingLifecycle(selectionChangeHandler),
             context.selectionBandProperty.bindingLifecycle(selectionBandHandler),
-            context.newShapeAvatarProperty.bindingLifecycle(newShapeAvatarHandler)
+            context.newShapeAvatarProperty.bindingLifecycle(newShapeAvatarHandler),
+            context.selection.items().bindingLifecycle { showSelection() }
         )
     }
 
@@ -76,14 +74,10 @@ class OverlayCanvasLayer(private val context: CanvasViewModel): CanvasLayer() {
         hoverGroup.children.setAll(Shape.hover(shape))
     }
 
-    private fun showSelection(selection: Collection<Shape>) {
-        if (selection.isEmpty()) {
-            selectionGroup.children.clear()
-        } else {
+    private fun showSelection() {
+        if (!context.selection.items().isEmpty()) {
             hideHover()
-            selectionGroup.children.setAll(SelectionBox(selection, context))
         }
     }
-
 
 }

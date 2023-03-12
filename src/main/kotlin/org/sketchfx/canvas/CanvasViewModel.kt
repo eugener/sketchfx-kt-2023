@@ -1,7 +1,9 @@
 package org.sketchfx.canvas
 
 import javafx.beans.binding.Bindings
+import javafx.beans.property.DoubleProperty
 import javafx.beans.property.ObjectProperty
+import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.ObservableList
 import javafx.geometry.*
@@ -56,6 +58,11 @@ open class CanvasViewModel(private val model: CanvasModel) {
         get() = transformProperty.get()
 
     // the scale exposed as a double
+    val scaleProperty: DoubleProperty = SimpleDoubleProperty(1.0).apply {
+        val scaleBinding = Bindings.createDoubleBinding( { scale }, model.scaleProperty)
+        this.bind(scaleBinding)
+        //TODO unbind
+    }
     var scale: Double
         get() = model.scaleProperty.get().x
         set(newScale) {
