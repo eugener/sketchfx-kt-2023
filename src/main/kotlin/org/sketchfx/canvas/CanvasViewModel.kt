@@ -59,15 +59,15 @@ open class CanvasViewModel(private val model: CanvasModel) {
 
     // the scale exposed as a double
     val scaleProperty: DoubleProperty = SimpleDoubleProperty(1.0).apply {
-        val scaleBinding = Bindings.createDoubleBinding( { scale }, model.scaleProperty)
-        this.bind(scaleBinding)
+        bind(model.scaleProperty.map { it.x })
         //TODO unbind
     }
+
     var scale: Double
         get() = model.scaleProperty.get().x
         set(newScale) {
             if (newScale >= 0) {
-                val bip = this.boundsInParentProperty.get()
+                val bip = boundsInParentProperty.get()
                 model.scaleProperty.set(Scale(newScale, newScale, bip.centerX, bip.centerY))
             }
         }

@@ -146,24 +146,6 @@ data class Shape(
         }
     }
 
-    override fun resize(width: Double, height: Double) {
-        children.forEach { //it.resize(width, height) }
-            when(it) {
-                is Rectangle -> {
-                    it.width = width
-                    it.height = height
-                }
-                is Ellipse -> {
-                    it.radiusX = width / 2
-                    it.radiusY = height / 2
-                }
-                else -> {
-                    it.resize(width, height)
-                }
-            }
-        }
-    }
-
 
     private fun updateAttrs(node: Node): Node {
         if (node is javafx.scene.shape.Shape) {

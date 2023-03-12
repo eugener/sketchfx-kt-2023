@@ -1,6 +1,5 @@
 package org.sketchfx.shape
 
-import javafx.beans.InvalidationListener
 import javafx.geometry.BoundingBox
 import javafx.geometry.Bounds
 import javafx.geometry.Point2D
@@ -12,6 +11,7 @@ import javafx.scene.shape.Rectangle
 import org.sketchfx.canvas.CanvasViewModel
 import org.sketchfx.fx.BoundsExt.union
 import org.sketchfx.fx.NodeExt.setupSceneLifecycle
+import org.sketchfx.fx.ShapeExt.bounds
 import org.sketchfx.fx.bindingLifecycle
 
 class SelectionBox(val context: CanvasViewModel) : Group() {
@@ -23,7 +23,8 @@ class SelectionBox(val context: CanvasViewModel) : Group() {
     init {
         children.setAll(shapeGroup, selectionGroup)
         setupSceneLifecycle(
-            context.selection.items().bindingLifecycle { _ -> update() }
+            context.selection.items().bindingLifecycle { _ -> update() },
+            context.scaleProperty.bindingLifecycle { _, _, _ -> update() }
         )
     }
 
@@ -53,10 +54,8 @@ class SelectionBox(val context: CanvasViewModel) : Group() {
 
         // has to be after binding handles to selectionShape
         // which allows the handles to be updated when selectionShape is updated
-        selectionShape.width = selectionBounds!!.width
-        selectionShape.height = selectionBounds.height
-        selectionShape.x = selectionBounds.minX
-        selectionShape.y = selectionBounds.minY
+        selectionShape.bounds = selectionBounds!!
+        selectionShape.strokeWidth = 1 / context.scale
 
     }
 
@@ -90,6 +89,7 @@ class SelectionHandle(
         isMouseTransparent = false
 
         val handle = Rectangle(0.0, 0.0, handleSize, handleSize).apply {
+            this.isResizable
             fill = Color.WHITE
             stroke = Shape.selectionStroke
             strokeWidth = 1.0
@@ -97,26 +97,24 @@ class SelectionHandle(
         }
 
         // using group to allow for future expansion
-        // e.g. to change a handle's shape
+        // e.g. change a handle's shape on the fly
         children.add(handle)
 
-        val updater = InvalidationListener {update()}
         setupSceneLifecycle(
-            parent.boundsInParentProperty().bindingLifecycle(updater),
-            context.scaleProperty.bindingLifecycle(updater)
+            parent.boundsInParentProperty().bindingLifecycle { update() },
+            context.scaleProperty.bindingLifecycle { _, _, _ -> update() }
         )
 
 //        dragSupport.enable()
     }
 
     private fun update() {
-//        println(context.scale)
-        val rect = children.first() as Rectangle
+        val handle = children.first() as Rectangle
         val p = type.point(parent.boundsInParent)
         val size = handleSize / context.scale
         val offset = size / 2
-        rect.resizeRelocate(p.x - offset, p.y - offset, size, size)
-        rect.strokeWidth = 1 / context.scale
+        handle.bounds = BoundingBox(p.x - offset, p.y - offset, size, size)
+        handle.strokeWidth = 1 / context.scale
     }
 
 }
